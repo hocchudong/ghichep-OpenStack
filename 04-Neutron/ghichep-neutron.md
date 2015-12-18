@@ -6,6 +6,8 @@
 
 #### Bước 1: Cấu hình
 ##### Trên Neutron Server
+
+- Trong bản OpenStack Liberty thì Neutron nằm trên Controller
 - Khai báo trong file `/etc/neutron/neutron.conf`
 ```sh
 [DEFAULT]
