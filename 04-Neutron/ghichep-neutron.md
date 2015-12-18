@@ -75,7 +75,7 @@ neutron port-update ID_PORT --no-qos-policy
 
 - Đứng trên node compute kiểm tra port của máy ảo cần kiểm tra bằng lệnh
 ```sh
-ovs-ctl show | grep qvo
+ovs-vsctl show | grep qvo
 ```
 
 - Ghi lại port cần kiểm tra và sử dụng lệnh nload ở dưới.
@@ -91,6 +91,8 @@ ssh cirros@$THE_IP_ADDRESS 'dd if=/dev/zero  bs=1M count=1000000000'
 
 ##### Link tham khảo
 1. http://www.ajo.es/post/126667247769/neutron-qos-service-plugin
+
 2. http://m.blog.csdn.net/blog/junheart/48373483
+
 3 http://docs.openstack.org/networking-guide/adv_config_qos.html  (Cách tạo rule)
 
