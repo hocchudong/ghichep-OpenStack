@@ -96,3 +96,41 @@ ssh cirros@$THE_IP_ADDRESS 'dd if=/dev/zero  bs=1M count=1000000000'
 
 3 http://docs.openstack.org/networking-guide/adv_config_qos.html  (Cách tạo rule)
 
+---------------------- 
+
+###Security group:
+- Là 1 tập hợp các traffic rule được áp dụng cho các VM trong 1 tenant, dùng để kiểm soát truy cập giữa các VM và giữa VM với tài nguyên mạng bên ngoài môi trường openstack
+- Mặc định, 1 security group được tạo ra có tên default group được gán cho tất cả các instance. default group chặn tất cả traffic tới VM và chỉ cho traffic từ VM gửi đi.
+- 1 instance có thể có nhiều security group
+Trước đây, openstack sử dụng nova firewall driver để triển khai các security rules, nhưng giờ đã được thay thế bởi neutron, do đó cần disable nova firewall trong file */etc/nova/nova.conf* :
+
+        [DEFAULT]
+        ...
+        firewall_driver =nova.virt.firewall.NoopFirewallDriver
+
+
+ và thay thế bởi neutron firewall driver trong */etc/neutron/plugins/ml2/ml2_conf.ini* trên tất cả các node:
+
+        [securitygroup]
+        ...
+        enable_security_group = True    #để là true nếu dùng neutron firewall, false nếu dùng nova firewall
+        firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+
+ ở đây ta sử dụng firewall driver dành cho openvswitch, nếu sử dụng plugin là linux bridge, thì driver sẽ là :
+**neutron.agent.linux.iptables_firewall.IptablesFirewallDriver**
+
+- chi tiết của các neutron firewall drivers có thể tham khảo tại:
+https://github.com/openstack/neutron/blob/master/neutron/agent/linux/iptables_firewall.py
+
+ ta thấy có 2 driver chính đó là **IptablesFirewallDriver** và **OVSHybridIptablesFirewallDriver**.
+
+**OVSHybridIptablesFirewallDriver** là driver dành cho openvswitch plugin và được kế thừa lại từ **IptablesFirewallDriver**
+
+- security group của neutron được khai báo ở */etc/neutron/plugins/ml2/ml2/ml2_conf.ini*  trên tất cả các node. 
+ 
+ Khi thay đổi firewall driver không thích hợp ( ví dụ khai báo sai hoặc dùng sai driver) việc tạo và sửa các rule trên các security group cũng như việc gán security group cho instance không bị ảnh hưởng, nhưng các rule đó sẽ không có tác dụng đối với instance. Tất cá các traffic tới VM đều bị drop.
+
+#####Tham khảo:
+1. https://wiki.openstack.org/wiki/Neutron/blueprint_ovs-firewall-driver
+
+2. http://docs.openstack.org/user-guide-admin/nova_cli_manage_projects_security.html
