@@ -121,15 +121,16 @@ Trước đây, openstack sử dụng nova firewall driver để triển khai c�
 **neutron.agent.linux.iptables_firewall.IptablesFirewallDriver**
 
 - chi tiết của các neutron firewall drivers có thể tham khảo tại:
+https://github.com/openstack/neutron/blob/master/neutron/agent/firewall.py
 https://github.com/openstack/neutron/blob/master/neutron/agent/linux/iptables_firewall.py
 
- ta thấy có 2 driver chính đó là **IptablesFirewallDriver** và **OVSHybridIptablesFirewallDriver**.
+ ta thấy có các driver chính đó là **IptablesFirewallDriver**, **OVSHybridIptablesFirewallDriver** dựa trên iptables và NoopFirewallDriver nếu không muốn triển khai neutron firewall
 
 **OVSHybridIptablesFirewallDriver** là driver dành cho openvswitch plugin và được kế thừa lại từ **IptablesFirewallDriver**
 
 - security group của neutron được khai báo ở */etc/neutron/plugins/ml2/ml2/ml2_conf.ini*  trên tất cả các node. 
  
- Khi thay đổi firewall driver không thích hợp ( ví dụ khai báo sai hoặc dùng sai driver) việc tạo và sửa các rule trên các security group cũng như việc gán security group cho instance không bị ảnh hưởng, nhưng các rule đó sẽ không có tác dụng đối với instance. Tất cá các traffic tới VM đều bị drop.
+ Khi thay đổi firewall driver ( ví dụ khai báo sai driver hoặc dùng NoopFirewallDriver) việc tạo và sửa các rule trên các security group cũng như việc gán security group cho instance không bị ảnh hưởng, nhưng các rule đó sẽ không có tác dụng đối với instance. Tất cá các traffic tới VM đều bị drop.
 
 #####Tham khảo:
 1. https://wiki.openstack.org/wiki/Neutron/blueprint_ovs-firewall-driver
