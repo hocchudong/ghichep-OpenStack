@@ -99,7 +99,8 @@ ssh cirros@$THE_IP_ADDRESS 'dd if=/dev/zero  bs=1M count=1000000000'
 ---------------------- 
 
 ###Security group:
-- Là 1 tập hợp các traffic rule được áp dụng cho các VM trong 1 tenant, dùng để kiểm soát truy cập giữa các VM và giữa VM với tài nguyên mạng bên ngoài môi trường openstack
+- Là 1 tập hợp các traffic rule được áp dụng cho các VM trong 1 tenant, dùng để kiểm soát truy cập giữa các VM và giữa VM với tài nguyên mạng bên ngoài môi trường openstack.
+- 1 security khi đc gán cho 1 port hoặc VM sẽ được dịch sang các iptables rules.
 - Mặc định, 1 security group được tạo ra có tên default group được gán cho tất cả các instance. default group chặn tất cả traffic tới VM và chỉ cho traffic từ VM gửi đi.
 - 1 instance có thể có nhiều security group
 Trước đây, openstack sử dụng nova firewall driver để triển khai các security rules, nhưng giờ đã được thay thế bởi neutron, do đó cần disable nova firewall trong file */etc/nova/nova.conf* :
