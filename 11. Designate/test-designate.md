@@ -107,4 +107,5 @@ Tạo máy ảo chuyển DNS về địa chỉ máy cài Designate và sử dụ
 http://docs.openstack.org/developer/designate/
 
 https://support.rc.nectar.org.au/docs/designate-commands
+
 http://docs.openstack.org/cli-reference/content/designateclient_commands.html
