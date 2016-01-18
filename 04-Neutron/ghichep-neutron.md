@@ -128,9 +128,33 @@ https://github.com/openstack/neutron/blob/master/neutron/agent/linux/iptables_fi
 
 **OVSHybridIptablesFirewallDriver** là driver dành cho openvswitch plugin và được kế thừa lại từ **IptablesFirewallDriver**
 
-- security group của neutron được khai báo ở */etc/neutron/plugins/ml2/ml2/ml2_conf.ini*  trên tất cả các node. 
- 
- Khi thay đổi firewall driver ( ví dụ khai báo sai driver hoặc dùng NoopFirewallDriver) việc tạo và sửa các rule trên các security group cũng như việc gán security group cho instance không bị ảnh hưởng, nhưng các rule đó sẽ không có tác dụng đối với instance. Tất cá các traffic tới VM đều bị drop.
+- **NoopFirewallDriver** : NGoài các firewall drivers dành cho linux bridge hoặc openvswitch plugin, còn 1 NoopFirewallDriver, tác dụng dùng để không cho phép người sử dụng thay đổi các security group rules, cụ thể như sau:
+
+    -**Bước 1**: Sử dụng option **OVSHybridIptablesFirewallDriver** tạo 1 security group có tên sg1 với các rules cho phép ping và ssh traffic và gán cho các VM1 và VM2:
+  
+    <img src="http://i.imgur.com/FfetSk5.png">
+
+    Lúc này ta thấy xuất hiện các rules tương ứng trong iptables:
+
+    <img src="http://i.imgur.com/QkaVV5q.png">
+
+   Kiểm tra kết nối: 
+   
+    <img src="http://i.imgur.com/H7IHM7K.png">
+
+    -**Bước 2** : Thay đổi firewall driver thành Noop trong /etc/neutron/plugins/ml2/ml2_conf.ini trên tất cả các node và restart lại các dịch vụ của neutron:
+
+        [securitygroup]
+        ...
+        firewall_driver = neutron.agent.firewall.NoopFirewallDriver
+
+    -**Bước 3**: xóa security group sg1 và tạo 1 security group mới có tên sg2 với các rules cho phép truyền thông trên port 80:
+
+     <img src="http://i.imgur.com/ruWhwh1.png:>
+
+    Lúc này ta thấy mọi nỗ lực thay đổi security group trên môi trường openstack đều không ảnh hưởng tới những rules ta đã tạo từ trước. Cụ thể, khi xóa security group sg1 đã tạo trước đó khỏi các VM1 và VM2 thì những iptables rules về icmp và ssh vẫn còn và việc truyền thông giữa các VM vẫn đảm bảo như trong bước 1, đồng thời những rules mới tạo ở sg2 sẽ không xuất hiện trong iptables và việc truyền thông qua port 80 sẽ không thực hiện được. 
+
+    Điều này cho thấy Noopfirewalldriver có nhiệm vụ tạo ra những chính sách về truyền thông một cách cố định, người quản trị cloud sẽ tạo ra những traffic rules và fix cứng chúng trên từng tenant, người dùng sẽ tuân theo các rule mặc định đó mà không thể tạo mới hoặc thay đổi theo ý mình.
 
 #####Tham khảo:
 1. https://wiki.openstack.org/wiki/Neutron/blueprint_ovs-firewall-driver
