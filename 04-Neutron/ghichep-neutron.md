@@ -150,7 +150,7 @@ https://github.com/openstack/neutron/blob/master/neutron/agent/linux/iptables_fi
 
     -**Bước 3**: xóa security group sg1 và tạo 1 security group mới có tên sg2 với các rules cho phép truyền thông trên port 80:
 
-     <img src="http://i.imgur.com/ruWhwh1.png:>
+     <img src="http://i.imgur.com/ruWhwh1.png">
 
     Lúc này ta thấy mọi nỗ lực thay đổi security group trên môi trường openstack đều không ảnh hưởng tới những rules ta đã tạo từ trước. Cụ thể, khi xóa security group sg1 đã tạo trước đó khỏi các VM1 và VM2 thì những iptables rules về icmp và ssh vẫn còn và việc truyền thông giữa các VM vẫn đảm bảo như trong bước 1, đồng thời những rules mới tạo ở sg2 sẽ không xuất hiện trong iptables và việc truyền thông qua port 80 sẽ không thực hiện được. 
 
