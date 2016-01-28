@@ -23,15 +23,16 @@ Máy attacker được cài đặt tool tấn công arp có tên Dsniff. Máy n�
 
 <img src="http://i.imgur.com/oKG3vpW.png">
 
-1. Trường hợp enable tính năng prevent-arp-spoofing :
+**1. Trường hợp enable tính năng prevent-arp-spoofing :**
     
  Việc gửi các bản tin giả mạo không ảnh hưởng tới arp table của máy victim và gateway do các bản tin này đã bị lọc ở mức ethernet frame.
+
  <img src="http://i.imgur.com/N287KDG.png">
  <img src="http://i.imgur.com/p3AEjjn.png">
 
  Ta thấy địa chỉ IP và MAC vẫn duy trì ở trạng thái chính xác mà không bị thay đổi. Quá trình ping giữa máy victim và gateway diễn ra bình thường. Tiến hành bắt gói tin ở máy attacker, ta không thu được các bản tin icmp nghe lén. 
 
-2. Trường hợp disable tính năng prevent-arp-spoofing:
+**2. Trường hợp disable tính năng prevent-arp-spoofing:**
 
  Set giá trị prevent_arp_spoofing = False
 
@@ -47,5 +48,6 @@ Quá trình ping giữa victim với gateway hoặc với bất kì VM nào tron
 
 Tham khảo:
 [1] : https://docs.oseems.com/general/operatingsystem/linux/sniff-network-traffic
+
 [2] : http://quantrimang.com/tim-hieu-ve-tan-cong-man-in-the-middle-%E2%80%93-gia-mao-arp-cache-66482
 
