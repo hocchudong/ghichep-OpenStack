@@ -66,5 +66,7 @@ Giả sử tạo thêm 1 instance d và gán nó vào sg1, thì trong ipset xu�
 Tài liệu tham khảo:
 
 http://www.linuxjournal.com/content/advanced-firewall-configurations-ipset
+
 http://git.openstack.org/cgit/openstack/neutron-specs/tree/specs/juno/add-ipset-to-security.rst#n28
+
 http://blog.vccloud.vn/cau-hinh-firewall-su-dung-ipset/
