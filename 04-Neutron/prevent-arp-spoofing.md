@@ -3,7 +3,7 @@
 - 1 cuộc tấn công giả mạo arp có thể được thực hiện ở trong mạng nội bộ bởi chính 1 VM nằm trong mạng đấy. Máy tấn công có thể gửi liên tục các bản tin arp giả mạo tới các máy nạn nhân hoặc tới gateway, nhằm thay đổi bảng arp trên các máy đó. Điều này dẫn tới việc truyền thông của các VM sẽ bị ảnh hưởng hoặc tệ hơn, là mọi thông tin đều bị attacker nghe lén và đánh cắp mà người dùng không hề phát giác được.
 - Chi tiết về tấn công giả mạo arp có thể tham khảo ở đây: http://quantrimang.com/tim-hieu-ve-tan-cong-man-in-the-middle-%E2%80%93-gia-mao-arp-cache-66482
 
-- Để ngăn chặn việc các máy ảo trong 1 vùng mạng private của 1 tenant có thể thực hiện 1 vụ tấn công arp, openstack cung cấp cơ chế prevent_arp_spoofing. Cơ chế này được khai báo trong /etc/neutron/plugins/ml2/ml2_conf.ini :
+- Để ngăn chặn việc các máy ảo trong 1 vùng mạng private của 1 tenant có thể thực hiện 1 vụ tấn công arp, openstack cung cấp cơ chế prevent_arp_spoofing. Cơ chế này được khai báo trong /etc/neutron/plugins/ml2/ml2_conf.ini trên tất cả các node :
 
         [agent]
         ...
@@ -47,6 +47,7 @@ Quá trình ping giữa victim với gateway hoặc với bất kì VM nào tron
 <img src="http://i.imgur.com/jcdLAOn.png">
 
 Tham khảo:
+
 [1] : https://docs.oseems.com/general/operatingsystem/linux/sniff-network-traffic
 
 [2] : http://quantrimang.com/tim-hieu-ve-tan-cong-man-in-the-middle-%E2%80%93-gia-mao-arp-cache-66482
