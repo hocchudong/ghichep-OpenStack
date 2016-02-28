@@ -67,3 +67,5 @@ GBP thích hợp với các ứng dụng đa tầng, khi mà mỗi tầng ứng 
             service apache2 restart
 
 Hoàn thành cài đặt GBP trên openstack. Giờ ta có thể sử dụng GBP API thông qua giao diện dòng lệnh CLI hoặc trực tiếp trên dashboard của openstack. 
+
+<img src="http://i.imgur.com/o1NNaBx.png">
