@@ -43,14 +43,20 @@ curl -i -X PUT -H "X-Auth-Token: a05228d261fe46f1be1c298802416549" "http://172.1
 ##3. Tempurl (url tạm thời)
 - kích hoạt tính năng với url key đặc trưng
 
-`curl -i -X POST http://172.16.69.238:8080/v1/AUTH_870d62be2c254d428226da346dfe9fbf -H "X-Account-Meta-Temp-URL-Key: secret" -H "X-Auth-Token: a7fba3e7e1b447eeb0056922cdbe4460" -i`
+```
+curl -i -X POST http://172.16.69.238:8080/v1/AUTH_870d62be2c254d428226da346dfe9fbf -H "X-Account-Meta-Temp-URL-Key: secret" -H "X-Auth-Token: a7fba3e7e1b447eeb0056922cdbe4460" -i
+```
 
 - kiem tra url key
 
-`curl -i http://172.16.69.238:8080/v1/AUTH_870d62be2c254d428226da346dfe9fbf?format=json -X GET -H "X-Auth-Token: a7fba3e7e1b447eeb0056922cdbe4460" //kiem tra url key`
+```
+curl -i http://172.16.69.238:8080/v1/AUTH_870d62be2c254d428226da346dfe9fbf?format=json -X GET -H "X-Auth-Token: a7fba3e7e1b447eeb0056922cdbe4460"
+```
 
 - tạo url tạm thời, kết quả của lệnh sau sẽ sinh ra 1 url tạm thời để download đối tượng.
-`swift tempurl <method> <seconds> <path> <key>``
+```
+swift tempurl <method> <seconds> <path> <key>
+```
 
 
 
@@ -111,5 +117,6 @@ curl -X POST -H "X-Auth-Token: ab189a14361f4a93be5ee783331b2fb2"  -H 'X-Containe
 
 ##11. make container public
 
-
+```
 curl -X POST -H "X-Auth-Token: $TOKEN" -H 'X-Container-Read: .r:*' "$STORAGE_URL/website"
+```
