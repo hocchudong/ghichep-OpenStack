@@ -1,0 +1,64 @@
+Part1
+OpenStackSwift
+
+Chapter 1: Sự tiến hóa của khối lưu trữ
+
+Software-defined storage(SDS) với hệ thống như Swift đã được phát triển, object storage và SDS là sự tiến hóa tiếp theo của công nghệ lưu trữ
+
+Lưu trữ cần cho giữ liệu ngày nay
+Trong thời đại của các thiết bị kết nối, nhu cầu về các hệ thống lưu trữ ngày càng tăng cao. Người sử dụng sản xuất và tiêu thụ dữ liệu nhiều hơn bao h hết, với các phương tiện truyền thông, video trực tuyến, nội dung người dùng tải lên, game, với và ứng dụng SDS khiến cho hệ thống lưu trữ phải được mở trộng để có thể phát triển và truy cập dễ dàng. Rất nhiều công ty và tổ chức đang phải đối mặt với nhu cầu lưu trữ càng ngày càng lớn như khoa học địa chất, hay đời sống, hay video với độ phân giải ngày càng cao, các doanh nghiệp đang thu thập dữ liệu về các dự án của họ và nhân viên mong đợi truy cập nhanh và có sự tương tác.
+Đa số các dữ liệu ngày nay là không có cấu trúc. Điều này nghĩa là các dữ liệu không có một mô hình dữ liệu được xác định trước và thường được lưu trữ như 1 tập tin khác với 1 entry trong cơ sở dữ liệu. Phần lớn các cấu trúc phi dữ liệu này là hình ảnh, video, email, tài liệu, các tập tin, dữ liệu này được tạo ra bởi rất nhiều thiết bị kết nối trực tuyến mỗi năm..
+
+Sự phát triển của dữ liệu: exabyte, hellabytes và beyond
+Lượng dữ liệu lưu trữ dự tính lên tới 35.840 exabyte vào năm 2020 và chia đầu người là 4 terabye mỗi người.
+1 exabyte = 1tr terabyte = 1 tỷ gigabyte. 
+Dung lượng lưu trữ tiếp tục phát triển, cần có các đơn vị mới về lưu trữ
+extrabyte = 10^18 bytes
+zettabyte = 10^21 bytes
+yottabyte = 10^24 bytes
+
+Yêu cầu cho việc lưu trữ dữ liệu phi cấu trúc
+Lưu trữ dữ liệu phi cấu trức thường cần phải được lưu trữ 1 cách bền vững, với độ tin cậy cao và chi phí thấp
+- Độ bền: Độ bề là mức độ mà hệ thống lưu trữ dữ liệu có thể đảm bảo rằng sẽ không bao giờ bị mất hoặc bị hỏng vĩnh viễn,bất chấp những yếu tổ khách quan(như ổ đĩa hỏng). Dữ liệu mà ta tạo ra là quan trọng nhất (không thể thay thế).Nhiều loại dữ liệu phải được lưu mãi mãi. Tại 1 trung tâm dữ liệu, dữ liệu phi cấu trúc phải được lưu trữ trong thời gian dài đáp ứng được nhu cầu cá nhân, nhu cầu pháp lý hoặc cả 2.
+- Tính sẵn sàng: Tính sẵn sàng đề cập đến 1 thời gian hoạt động hệ thống lưu trữ và đáp ứng khi đối mặt lỗi các nhân hoặc hệ thống tải nặng. Dữ liệu phi cấu trúc thường phải được sẵn sàng ngay lập tức trên 1 loạt các thiết bị bất kỳ kể cả vị trí,người dùng muốn truy cập tại nhà, laptop, dtdd. Mặc dù dữ liệu được lưu trữ nhưng nhiều người dùng vẫn mong muốn dữ liệu của họ được xử lý tốc độ cao, có mặt ngay lập tức
+- Khả năn quản lý: cần giữ cho hệ thống hoạt động thông suốt trong 1 thời gian dài. Khái niệm này có thể bao gồm nhân sư, thời gian, rủi ro, tính linh hoạt, và nhiều nguyên nhân khác mà khó có thể định lượng trước được. Với hệ thống lưu trữ lớn hơn trên trực tuyến, việc quản lý là rất quan trọng. Lưu trữ phải dễ dàng được quản lý. 1 lượng nhỏ admin có thể quản lý được 1 lượng lớn server lưu trữ
+- Chi phí thấp: Dữ liệu phi cấu trúc cần được lưu trữ với chi phí thấp, cần phải tiết kiệm tối đa chi phí lưu trữ, bao gồm từ chi phí thiết bị phần cứng ban đầu, chi phi duy trì nhân sự, giấy phép phần mềm, ngoài ra cả những chi phí phát sinh trong quá trình chạy
+
+Không có 1 kích cõ nào cho tất cả hệ thống lưu trữ.
+Mặc dù sẽ là tuyệt vời nếu có 1 kích thước cho tất cả các dữ liệu phi câu trúc. Nhưng thực thế sẽ không có, hệ thống lưu trữ đòi hỏi sữ thay đổi theo hoàn cảnh và yêu cầu cụ thể của mình
+Theo định lý CAP hệ thống máy tính phân tán có thể không đồng thời cung cấp:
+- Tính nhất quán: tất cả các khách hàng đều có thể thấy cùng 1 lúc 1 phiên bản của dữ liệu.
+- Tính sẵn có: Khi bạn đọc hoặc ghi hệ thống, bạn được đảm bảo để có 1 sự đáp lại
+- khả năng phân vùng: Hệ thống hoạt động khi mạng không ổn định
+Bạn phải lựa chọn 2 yếu tố quan trọng nhất theo 1 hoàn cảnh cụ thể.
+Swift đảm bảo được tính sẵn có và khả năng chịu phân cùng. Nghĩa là Swift sẽ xử lý khối lượng công việc cần thiết để ưu trữ 1 lượng lớn các dữ liệu phi cấu trúc. Điều này cho phép Swift rất bền vững và có tính sẽ sàng rất cao
+
+Object Storage so với với loại Storage khác
+Các loại dữ liệu khác nhau có các cách truy cập khác nhau nên được lưu trữ 1 cách tốt nhất trên các loại storage khác nhau bao gô: block storage, file system và object storage
+- Block storage: Lưu trữ dữ liệu có cấu trúc, được lưu vào các khối( mỗi khối 2^12 bit) có kích thước bằng nhau. Thông thường loại lưu trữ này phù hợp với các ứng dụng quản lý chặt chẽ lưu trữ dữ liệu có cấu trúc.
+- File system: 
+- Object storage:
+1 trong những ưu điểm chính của object là khả năng phân phát yêu cầu cho các đối tượng trên 1 lượng lớn các máy chủ lưu trữ. Điều này cung cấp tính chất đáng tin cây, khả năng mở rộng lưu trữ cho 1 lượng lớn dữ kiệu với chi phí thấp.
+Khi hệ thống đủ lớn, nó có thể chỉ ra 1 không gian tên duy nhất. Điều này nghĩa là 1 ứng dụng hoặc người dùng không cần thiết và không nên biết những hệ thống lưu trữ sẽ được sử dụng. Điều này sẽ giảm gánh nặng lên nhà điều hành, không giống như các file system, mà các nhà khai thác phải quản lý nhiều về dung lương lưu trữ, bời vì 1 hệ thống lưu trữ object cung cấp 1 không gian tên, không cần cắt nhỏ dữ liệu để lưu trữ ở các điểm khác nhau giúp cho việc quản lý dữ liệu trở nên dễ dàng hơn.
+
+Kiến trúc lưu trữ mới: Phần mềm điều khiển lưu trữ (Sofware- Defind Storage)
+Lịch sử lưu trữ dữ liệu bắt đầu với ổ đĩa cứng kết nối với 1 máy tính lớn, sau đó lưu trữ dần dần tách khỏi máy tính và trở thành hệ thống riêng biệt với bộ điều khiển riêng biệt. Tuy nhiên mọi thứ đều thay đổi, các ứng dụng lớn hơn rất nhiều, nghĩa là nhu cầu lưu trữ càng ngày càng đẩy xa hơn những j kiến trúc cũ có thể hỗ trợ.
+Các hệ thống cũ thì thường phần cứng tùy chính, phần mềm đóng, khiến cho chi phí bảo trì, di chuyển dữ lệu trở nên khó khăn khi mọi thứ kết hợp với nhau khá chặt chẽ.
+Quy mô của dữ liệu phi cấu trúc cần thay đổi ---> SDS ra đời,  Với SDS toàn bộ lưu trữ stack được kết nối lại để đáp ứng tốt nhất về tiêu chí về độ về, tính sẵn sàng, khả năng quản lý và chi phí thấp
+SDS đặt trách nhiệm cho hệ thống trong phần mềm, không phải với phần cứng cụ thể. Thay vì tránh lỗi, SDS được phát triển để làm việc với khả năng chịu lỗi cao.
+Dữ liệu phi cấu trúc bắt đầu phát triển mạnh hơn cả dữ liệu có cấu trúc cả về mặt lưu trữ và doanh thu. SDS cung cấp cách tốt nhất để lưu trữ dữ liệu phi cấu trúc, bằng các chịu lỗi cao. Khi toàn bộ hệ thống lưu trữ có thể chạy trên các phần cứng được pha trộn từ các nhà sản xuất khác nhau với đời thiết bị khác nhau thì việc di chuyển cũng sẽ trở nên đơn giản hơn.
+Điều này kiến cho việc mở rộng hệ thống lưu trữ ra phạm vi rộng cả về mặt đại lý, khiến cho việc chống lại tấn công dữ liệu hay mở rộng dữ liệu trở nên đơn giản hơn nhiều
+
+Các thành phần SDS(Software defined storage)
+Các hệ thống SDS tách biệt các thông tin điều khiển và phần cứng bên dưới.
+Có 4 thành phần của hệ thống SDS:
+- Định tuyến lưu trữ: Các lớp định tuyến lưu trữ hoạt động như gateway của hệ thống lưu trữ. Tập hợp các router có thể được phân phối qua nhiều trung tâm ở nhiều vị trí địa lý khác nhau. Các layer router hiểu với mỗi nút bổ sung sẽ cho phép nhiều dung lượng hơn cho việc truy cập dữ liệu. Các router trong hệ thống SDS có thể yêu cầu lưu trữ các tuyến đường xung quanh phần cứng và các đường net lỗi. Khi có lỗi phần cứng, hệ thống sẽ áp dụng các quy tắc đơn giản để phục vụ yêu cầu bằng cách lắp ráp các khổi dữ liệu cần thiết hoặc bản sao dữ liệu từ những nơi không có lỗi. Các quá trình trong hệ thống SDS chiếm quyền kiểm soát truy cập cao., hỗ trợ các giao thức và yêu cầu API.
+- Khả năng phục hồi lưu trữ: Trong hệ thống SDS, khả năng phục hồi từ các lỗi là trách nhiệm của phần mềm. Dữ liệu được đảm bảo không bị hỏng hay mất, có thể có quy trình riêng biệt chạy để kiểm tra liên tục các dữ liệu hiện có và đo đạc để bảo vệ dữ liệu trên nhiều nút khác nhau. Nếu dữ liệu được tìm thấy là bị hỏng hoặc thiếu, các biện pháp chủ động bảo vệ có thể được thực hiện bởi hệ thống
+- Phần cứng vật lý: Trong hệ thống SDS, các phần cứng vật lý lưu trữ các bít trên các ổ. Tuy nhiên, đảm bảo độ bền của dữ liệu là trách nhiệm của cả hệ thống với khả nanwng tự phục hồi chứ không chỉ tiêng 1 ổ. Khi 1 nút bị down hệ thống định tuyến lưu trữ sẽ định tuyến đường xung quanh nó
+- Bộ điều khiển: Hệ thống SDS phải dễ dàng quản lý với quy mô lớn. Cần có 1 bộ điều khiển tập trung, có thể tự động điều chỉnh hệ thống để tối ưu hóa hiệu suất, quản lý. Một bộ điều khiển cũng cho phép phục hồi nhanh hơn với phần cứng bị lỗi, hoặc đáp ứng đc với sự việc xảy ra. Nó sẽ giúp dàn xếp nguồn lực sẵn có, lưu trữ mạng, định tuyến và dịch vụ cho toàn bộ cụm lưu trữ
+
+Lợi ích SDS: Giúp cho hệ thống có thể vận hành ở quy mô lớn mà không cần quan tâm quá nhiều đến việc triển khai lưu trữ, quản lý đơn giản hơn, có khả năng mở rộng và dịch chuyển dữ liệu lưu trữ, thích ứng trên nhiều nền tảng khác nhau. Thường là mã nguồn mở, nhiều công cụ, phát triển mạnh mẽ với nhiều thành viên vì vậy việc tạo ra các chuẩn ngày càng quan trọng
+
+Tại sao là SWIFT
+SWift cho phép một loạt các ứng dung, bao gồm cả web và ứng dụng di động, sao lưu và lưu trữ hoạt động. Các lớp của dich vụ bổ sung cho phép người dùng truy cập vào hệ thống lưu trữ thông qua các cổng HTTP hoặc sử dụng câu lệnh ở các tool, các cổng file hệ thống, hoặc dẽ dàng sử dụng các ứng dụng để lưu trữ và động bộ dữ liệu với máy tính bàn, tablets hay thiêt bị di động. Swift cơ bản là 1 hệ thống lưu trữ mới, nó không phải là 1 hệ thống nguyên khối mà là 1 hệ thống phân phối với khả năng mở trộng và chịu lỗi lớn mà không ảnh hưởng đến dữ liệu sẵn có, có
+Swift là hệ thống lưu trữ đối tượng, đạt được tính sẵn sàng cao, có khẳ năng mở rông lên số lượng cực lớn các kết nối với bộ dữ liệu lớn. Có thể được cài đặt trên phần cứng thông thường dẫn đến chi phí thấp để xâu dựng hệ thống lưu trữ, dựa vào swift cung cấp các phần mềm quản lý hợp lý cảu dữ liệu chứ không cần nhà quản lý chuyên dụng, bạn có thể có sự linh hoạt đáng kinh ngạc trong các tính năng, triển khai và mở rộng quy mô lưu trữ

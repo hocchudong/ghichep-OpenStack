@@ -1,0 +1,154 @@
+chapter 6: thư viện Swift client
+Các chương trước đã nói về HTTP API Swift và sử dụng cURL. Giờ chúng ta sẽ sang làm việc với các thư viện mà Swift hỗ trợ
+Chương này chung cấp cái nhìn tổng quan cề các thư viện client mã nguồn mở được phát triển cho Swift mặc dù chúng ta sẽ vẽ hầu hết các ví dụ qua ngôn ngữ Python ngôn ngữ tạo nên Swift.
+
+Client libraries
+Thư viện client mã nguồn mở được phát triển cho Swift trong nhiều ngôn ngữ, bao gồm Python, Ruby, PHP, C#, .NET, JAVA và nh ngôn ngữ khác. Bằng cách nhìn vào các cách giao tiếp ở các chương trc, chúng ta sẽ thấy thông tin mà các thư viện cần phải có.
+- Gửi thông tin xác thực cho 1 yêu cầu auth
+- Nhận 1 auth token và URL lưu trữ
+- Gửi token auth và các thông tin khác có trong tiêu đề yêu cầu HTTP cho 1 lưu trữ
+- Nhận siêu dữ liệu trong các tiêu đề response header và nội dung trong thân của 1 phản hồi lưu trữ.
+Tât cả các thư viện client đều cố gắng sắp xếp chuyển đổi việc gửi và nhận sang ngôn ngữ riêng của nó, hầu hết các thư viện khách hàng cung cấp 1 số hỗ trợ trong phân tích responses là tốt.
+Một số thư viện phổ biến có thể kể ra ở 1 số ngôn ngữ như sau: Python, Ruby, PHP, C#, JAVA
+Chúng ta sẽ trình bày các ràng buộc Python-swiftclient ở mức sâu, với 1 số ví dụ bổ sung ở các thư viện ngôn ngữ khác. Những ví dụ này sẽ cho thấy sự tương đồng giữa các ngôn ngữ thư viện khác nhau, thậm chí trên ranh giới ngôn ngữ cung cấ cho bạn các nhìn sâu sắc về các thư viện khác. Nhưng hầu hết sẽ tập trung trên thư viện Python, ngôn ngữ mẹ đẻ của Swift, vì thư viện python-swift client phát triển khá tốt, dễ sử dụng, và được hỗ trở bởi chính dự án OpenStack.
+
+Giao dịch chứng thực.
+Bắt đầu bằng cách nhìn vào sự trao đổi xác thực. Để xem xét, client cần 3 thông tin để xác thực cho cluster Swift: tên người dùng, mật khẩu,và URL xác thực. Ví dụ sau chúng ta giả định URL ở đây là http://swift.example.com/auth/v1.0 người dùng lên alice và mật khẩu là pasw0rd
+Nhớ lại ở chương trước chúng ta xác thực bằng cURL với lệnh sau:
+ curl -D- -X GET -H 'X-Auth-User: alice' -H 'X-Auth-Key: passw0rd'  https://swift.example.com/auth/v1.0
+Nếu sự kết hợp người dùng và mật khẩu ko hợp lệ, chúng ta sẽ nhận được phản hồi 401 là trái phép. Tuy nhiên vì là hợp lệ nên phản hồi sẽ là 200 và trả về các header sau đây:
+ X-Storage-Url: https://swift.example.com/v1/AUTH_alice
+ X-Auth-Token: AUTH_tkdc764d39fd1c40c9a293cbea142b90d7
+Đây là cách HTTP APT Swift xử lý xác thực, chúng ta mong đợi rằng trong các thư viện client, chúng ta xác thực bằng cách gọi ra 1 hàm và truyền vào URL auth, tên và mật khẩu và hàm trả về 1 auth token cùng vs URL lưu trữ kết hợp với người dùng đó. Hãy xem đối với thư viện python, cung cấp cho bạn 2 lựa chọn giao diện. Bạn có thể sử dụng get_auth(), trả về 1 URL lưu trữ và auth token:
+>>> import swiftclient
+>>> authurl, username, password = (
+... 'http://swift.example.com/auth/v1.0', 'alice', 'passw0rd')
+>>> storageurl, token = swiftclient.get_auth(authurl, username, password)
+hoặc bạn có thể sử dụng  phương pháp hướng đối tượng ờ các lớp kết nối như sau
+>>> import swiftclient
+>>> authurl, username, password = (
+... 'http://swift.example.com/auth/v1.0', 'alice', 'passw0rd')
+>>> conn = swiftclient.Connection(authurl=authurl, user=username, key=password)
+Chúng tôi khuyên bạn nên sử dụng cách thứ 2, tự động thử lại yêu cầu khi mạng kết nối có vấn đề, nhưng Swift hỗ trợ cả các API. Tuy nhiên. người sử dụng nên lưu ý rằng các thông tin được trả về bởi các API đầu tiên không thể được sử dụng để tạo ra 1 đối tượng connection cho các API thứ 2, đối tượng kết nối không cần truy cập vào URL lưu trữ và token. nhưng trộn lẫn API sẽ không được khuyến cáo
+
+Các request lưu trữ: những yêu cầu cơ bản:
+Nếu bạn sử dụng hàm get_auth() và trả về URL storage và token, sau đó, bạn có thể phát ra các yêu cầu GET cơ bản tới account, containers và object như ở đây. Trong ví dụ này, chúng ta có 1 container có tên là my_photos trong account của chúng ta và 1 đối tượng tên là happy.png trong container đó.
+>>> acct_headers, containers = swiftclient.get_account(storageurl, token)
+>>> cont_headers, objs = swiftclient.get_container(storageurl, token, 'my_photos')
+>>> obj_headers, obj = swiftclient.get_object(storageurl, token, 'my_photos', 'happy.png')
+Hàm cơ bản API dựa vào các thư viện của python-swiftclient mà chúng ta vừa chứng minh có thể sử dụng rất giống với cách chúng ta sử dụng cURL trong chương trước. Như 1 sự thay thế thích hợp hơn với giao diện, chúng ta sẽ kết nối tới các API hướng đối tượng như sau:
+>>> conn = Connection(authurl=authurl, user=username, key=password)
+>>> acct_headers, containers = conn.get_account()
+>>> cont_headers, objs = conn.get_container('my_photos')
+>>> obj_headers, obj = conn.get_object('my_photos', 'happy.png')
+
+ở cả 2 trường hợp đều trả về giá tri như sau:
+In both cases, your return values will look like this:
+>>> acct_headers
+{
+ 'content-length': '96',
+ 'accept-ranges': 'bytes',
+ 'x-timestamp': '1389900015.90491',
+ 'x-trans-id': 'txad3196fe1c5f43db81ae8-0052d9926f',
+ 'date': 'Fri, 17 Jan 2014 20:28:31 GMT',
+ 'x-account-bytes-used': '458',
+ 'x-account-container-count': '2',
+ 'content-type': 'application/json; charset=utf-8',
+ 'x-account-object-count': '1'
+}
+>>> containers
+[
+ {'count': 1, 'bytes': 458, 'name': 'my_photos'},
+ {'count': 0, 'bytes': 0, 'name': 'my_videos'}
+]
+>>>
+>>> cont_headers
+{
+ 'content-length': '157',
+ 'x-container-object-count': '1',
+ 'x-container-meta-my-other-metadata': 'Bar',
+ 'x-container-meta-my-metadata': 'Foo',
+ 'x-container-bytes-used': '458',
+ 'x-timestamp': '1389900015.93242',
+ 'x-trans-id': 'txb138978a46154a6e96460-0052dd804b',
+ 'date': 'Mon, 20 Jan 2014 20:00:11 GMT',
+ 'content-type': 'application/json; charset=utf-8',
+ 'accept-ranges': 'bytes'
+}
+>>> objs
+[
+ {
+ 'bytes': 458,
+ 'last_modified': '2014-01-16T23:49:42.936030',
+ 'hash': '0450d6d21f1aa2aa1fe4a354c8e62c8f',
+ 'name': 'happy.png',
+ 'content_type': 'image/png'
+ }
+]
+>>>
+>>> obj_headers
+{
+ 'content-length': '458',
+ 'accept-ranges': 'bytes',
+ 'x-object-meta-my-other-metadata': 'Bar',
+ 'last-modified': 'Thu, 16 Jan 2014 23:49:43 GMT',
+ 'etag': '0450d6d21f1aa2aa1fe4a354c8e62c8f',
+ 'x-timestamp': '1389916182.93603',
+ 'x-trans-id': 'tx15ad1a1c9c9f462b8b261-0052dd811c',
+ 'date': 'Mon, 20 Jan 2014 20:03:40 GMT',
+ 'content-type': 'image/png'
+}
+>>> obj
+'\x89PNG\r\n\...'
+
+Lưu ý rằng python-swiftclient đã phân tích các headers mà chúng ta thấy qua cURL và biến chúng thành đối tượng dictionary- 1 kiểu dữ liệu của Python giúp dễ dàng có thể truy cập theo 1 cách hữu ích nhất cho bạn. Những lợi thế này, cùng với cách đặt tên trực quan giúp cho nhà phát triển các dev cảm thấy hứng thú hơn với lựa chọn này.
+Các thư viện swiftclient library gỡ bỏ hoàn toàn sự lặp lại việc gõ các thông số như lệnh cURL trong khi có sự ánh xạ rõ ràng giữa các lời gọi tới thư viện với các lời gọi HTTP căn bản. Ví dụ trước đây đã chứng minh hoạt động GET:, nó có sự tương tác với các lời gọi thư viện như HEAD, POST, PUT, DELETE (ko có các phương thức PUT hoặc DELETE với account, vì những hành động này chỉ được thực hiện bởi các admin). Lưu ý rằng, ngoài việc quản lý các token xác thực, phương pháp connection cũng tự động kết nối lại khi các kết nối mạng thất bại. Đây là lý do khác mà bạn có thể thích hàm connection này hơn các hàm ở tầng thấp hơn.
+Các phương pháp còn lại làm việc chính xác như bạn mong muốn, tương tự như các ví dụ trước, ví dụ sau đây sẽ lấy metadata account bằng phương thức head_account:
+>>> conn.head_account()
+{
+ 'content-length': '0',
+ 'x-account-container-count': '2',
+ 'x-account-object-count': '2',
+ 'x-account-bytes-used': '2048'
+}
+Hàm put_object sẽ có thêm 1 tham số bổ sung đại diện cho dữ liệu được lưu trữ. Nếu dữ liệu bạn nhỏ, bạn có thể chọn đơn giản như 1 string Python có chưa các dữ liệu:
+>>> some_data = "Hi Mom! Look, I'm on Swift!"
+>>> conn.put_object(container_name, object_name, some_data)
+'546e8a12a999e4f63a1e669fd6967355'
+Phương pháp put_object sẽ trả về giá trị băm MD5 của đối tượng mà bạn có thể sử dụng để xác nhận rằng đối tượng đượng lưu trữ chính xác trong các cluster phù hợp trên ổ local.
+Với file có dung lượng lớn có thể sử dụn phương pháp sau:
+>>> with open('/path/to/local/file') as localfile: 
+...conn.put_object(container_name, object_name, localfile)
+Bằng việc chấp nhận 1 đối tượng như 1 tập tin thay vì dữ liệu nớ, swiftclient APT đủ khả năng với dòng dữ liệu tới Swift hơn là đưa các dữ liệu đó vào bộ nhớ.
+
+Request lưu trữ: Yêu cầu nâng cao
+Bởi các thư viện client có nhiều điểm chung, phần này sẽ rất hữu ích với các nhà phát triển không chỉ riêng với Pyhton mà các nhà phát triển ở các ngôn ngữ khác.
+Tât cả các phương thức API swiftclient đều có khá nhiều thông số tùy chọn truyền vào. Ví dụ bạn có thể xác định 1 cách rõ ràng 1 đoạn kích thước cho hoạt động của cả GET và PUT trong phân chia dữ liệu để chuyển lên hiệu quả hơn (giải thích cụ thể "chunk size" ở trang 219 sách openstackswift)
+>>> obj_headers, obj_generator = conn.get_object( container_name, huge_object_name, resp_chunk_size=1<<20)
+>>> for chunk in obj_generator:
+...myfile.write(chunk)
+>>> myfile = open('/path/to/large/file')
+>>> conn.put_object(container_name, another_huge_object_name, my_file,chunk_size=65536)
+'0450d6d21f1aa2aa1fe4a354c8e62c8f'
+Nếu 1 đối tượng tập tin được cung cấp nhưng không có chunk_size thì giá trị mặc định là 64K.
+Header HTTP tùy ý như chỉnh sửa metadata có thể được thực hiện với các thư viện client khác nhau. Các phương pháp yêu cầu khác nhau cũng cần truyền vào tham số tùy chọn có tên:
+>>> conn.put_object(container_name, object_name, my_data, headers={'X-Object-Meta-Color': 'mauve'})
+Thông thường, yêu cầu thất bại được chỉ ra bởi các exceptions, và các dev sẽ không phân biện được giữa các mã phản hồi như 200 hay 400 ... Tuy nhiên sẽ dễ dàng truy cập chương trình để đáp ứng HTTP có sẵn, thông qua các tham số có tên "response_dict"
+>>> rd = {}
+>>> conn.put_object(container_name, object_name, my_data, response_dict=rd)
+>>> rd
+{
+ 'status': 200,
+ 'reason': 'OK',
+ 'headers': {'content-length': '458', ...},
+ 'response_dicts': [
+ {similar dict for each sub-request}
+ ]
+}
+
+Các xem xét bổ sung khi sử dụng Python
+python-swfitclient cũng có thể giúp mã hoác các ký tự ASCII và với những khó khăn có thể phát sinh từ các kết nối mạng không đáng tin cậy.
+Nếu bạn sử dụng bất kỳ ký tự ASCII trong yêu cầu cURL, header hoặc body, nó sẽ cần phải được mã hóa. python-swiftclient có quy định mã hóa unicode dữ liệu nhất quán như UTF-8
+Trong nhiều môi trường, kết nối mạng không đáng tin cậy và liên tục bị lỗi. Thử lại yêu cầu lỗi là thường được thực hiện, python-swiftclient xây dựng kết nối cho phé bạn chỉ định số lần thử lại cho các yêu cầu thất bại, cho phép tất cả các yêu cầu thực hiện với kết nối đó có thể thử kết nối lại 1 cách minh bạch, tiết kệm công sức và code cho các dev. Bạn thậm chí có thể kiểm soát sự chậm chễ các backoff ban đầu và tối đa được phép.
+Nếu 1 client bị gián đoạn khi thực hiện 1 PUT dài, nó có thể thử lại 1 lần nữa nếu nó có khả năng reset lại đầu vào. Một vài input, như 1 string, có thể reread nếu cần thiết. Những trường hợp khác như file có thể reread với các phương pháp lời gọi thích hợp seek() hoặc tell() trong trường hợp này. Còn 1 vài trường hợp như socket ko thể reset: một khi các bute được đọc từ socket, sẽ không có cách nào để quay lại và đọc những byte đó 1 lần nữa. Nếu dữ liệu mà bạn bỏ qua khi sử dụng put_swiftclient_object()có thể được thiết lập lại thì swiftclient mới có thể thử lại PUT 1 các minh bach sau khi cài đặt lại dữ liệu của bạn 1 lần nữa.
+Những cân nhắc nanng cao hơn có khả năng khác nhau ở các thư viện khác nhau, do đó sẽ có tùy chọn khác nhau vs các dev ở các ngôn ngữ khác nhau. Tuy nhiên, nó cung cấp cho bạn 1 cảm giác các loại tính năng theo thư viện khách hàng có thể cung cấp để thực hiện nhiệm vụ của nahf pt dễ dàng hơn
