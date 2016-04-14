@@ -1,47 +1,47 @@
 ###Overlapping network using namespace:
-- Openstack l� m� h�nh multitenancy -> m?i tenant c� th? t?o ri�ng nhi?u private network, router, firewall, loadbalancer� Neutron c� kh? nang t�ch bi?t c�c t�i nguy�n m?ng gi?a c�c tenant s? d?ng linux namespace.
-- m?i network namespace c� ri�ng cho m�nh routes, firewall rules, interface devices. M?i network hay router do tenant t?o ra d?u hi?n h?u du?i d?ng 1 network namespace -> cho ph�p c�c tenant t?o dc c�c network tr�ng nhau ( overlapping) nhung v?n d?c l?p m� k b? xung d?t (isolated)
-- C�c namespace hi?n th? du?i d?ng:
+- Openstack là mô hình multitenancy -> mỗi tenant có thể tạo riêng nhiều private network, router, firewall, loadbalancer… Neutron có khả năng tách biệt các tài nguyên mạng giữa các tenant sử dụng linux namespace.
+- mỗi network namespace có riêng cho mình routes, firewall rules, interface devices. Mỗi network hay router do tenant tạo ra đều hiện hữu dưới dạng 1 network namespace -> cho phép các tenant tạo dc các network trùng nhau ( overlapping) nhưng vẫn độc lập mà k bị xung đột (isolated)
+- Các namespace hiển thị dưới dạng:
      - qdhcp- <network UUID>
      - qrouter- <router UUID>
      - qlbaas- <load balancer UUID>
-- d? list c�c namespace dang c� s? d?ng l?nh:
+- để list các namespace đang có sử dụng lệnh:
 
         #ipnetns
 
-- xem c?u h�nh 1 network namespace s? d?ng l?nh:
+- xem cấu hình 1 network namespace sử dụng lệnh:
 	
          #ipnetns exec NAMESPACE command
 
-c�c l?nh c� th? s? d?ng ? d�y nhu ip, route, iptables, telnet ho?c ping�
+các lệnh có thể sử dụng ở đây như ip, route, iptables, telnet hoặc ping…
 
 -------------------------------------
 
 ###ML2 plugin:
 
-- Nh? ki?n tr�c plugin, Neutron c� kh? nang m? r?ng th�ng qua ML2 plugin
-- LB v� OVS l� c�c c?u tr�c nguy�n kh?i, c� nghia ch�ng ch? ho?t d?ng ri�ng r? m� k s? d?ng dc d?ng th?i v?i c�c c�ng ngh? kh�c. Nh? ML2 m� c�c c�ng ty c� th? t? t?o ra c�c plugin c?a ri�ng m�nh v� cho ph�p neutron s? d?ng ch�ng. ML2 t�ch c�c ch?c nang l�i c?a m?ng nhu IPAM, ID management� do d� c�c vendor k c?n l�m l?i c�c ch?c nang n�y m� ch? c?n t?p trung ph�t tri?n t�nh nang s?n ph?m. 
-- ML2 plugin tach bi?t network type v� mechanism type. network type v� mechanism type c� kh? nang t�ch bi?t th�ng qua drivers (pluggable)
-     - Type driver qu?n l� c�c m� h�nh m?ng c?a c? provider network v� tenant network nhu : local, flat, vlan, gre hay vxlan�
-     - Mechanism driver l� 1 l?p ch?a driver c?a h?u h?t c�c plugin network c?a c�c vendor kh�c nhau nhu OVS, LB, HyperV, Arista, CiscoNexus�
+- Nhờ kiến trúc plugin, Neutron có khả năng mở rộng thông qua ML2 plugin
+- LB và OVS là các cấu trúc nguyên khối, có nghĩa chúng chỉ hoạt động riêng rẽ mà k sử dụng đc đồng thời với các công nghệ khác. Nhờ ML2 mà các công ty có thể tự tạo ra các plugin của riêng mình và cho phép neutron sử dụng chúng. ML2 tách các chức năng lõi của mạng như IPAM, ID management… do đó các vendor k cần làm lại các chức năng này mà chỉ cần tập trung phát triển tính năng sản phẩm. 
+- ML2 plugin tach biệt network type và mechanism type. network type và mechanism type có khả năng tách biệt thông qua drivers (pluggable)
+     - Type driver quản lý các mô hình mạng của cả provider network và tenant network như : local, flat, vlan, gre hay vxlan…
+     - Mechanism driver là 1 lớp chứa driver của hầu hết các plugin network của các vendor khác nhau như OVS, LB, HyperV, Arista, CiscoNexus…
 
 ---------------------------- 
 
 ###Enable packet forwading:
 
-- Khi c?u h�nh Neutron, c?n c?u h�nh 3 kernel parameter v? forward g�i tin:
+- Khi cấu hình Neutron, cần cấu hình 3 kernel parameter về forward gói tin:
       - Net.ipv4.ip_forward = 1
       - Net.ipv4.conf.all.rp_filter = 0
       - Net.ipv4.conf.default.rp_filter = 0
 
-- Net.ipv4.ip_forward cho ph�p host v?t l� c� kh? nang forward traffic t? VM ra internet . 2 tham s? sau l� 1 co ch?  nh?m ngan ch?n t?n c�ng t? ch?i d?ch v? b?ng c�ch ch?n c�c d?a ch? IP gi? m?o. Khi dc c?u h�nh, linux kernel s? ki?m tra t?ng packet d? d?m b?o d?a ch? IP ngu?n l� c� th? d?nh tuy?n ngu?c t? interface m� n� g?i traffic d?n, t?c c�c g�i tin nh?n dc tr�n 1 interface t? IP d� s? c� kh? nang ph?n h?i l?i -> k ph?i IP gi? m?o.
-2 th�ng s? n�y du?c set v? 0, co ch? n�y dc tri?n khai thay b?ng iptables rules
+- Net.ipv4.ip_forward cho phép host vật lý có khả năng forward traffic từ VM ra internet . 2 tham số sau là 1 cơ chế  nhằm ngăn chặn tấn công từ chối dịch vụ bằng cách chặn các địa chỉ IP giả mạo. Khi dc cấu hình, linux kernel sẽ kiểm tra từng packet để đảm bảo địa chỉ IP nguồn là có thể định tuyến ngược từ interface mà nó gửi traffic đến, tức các gói tin nhận dc trên 1 interface từ IP đó sẽ có khả năng phản hồi lại -> k phải IP giả mạo.
+2 thông số này được set về 0, cơ chế này đc triển khai thay bằng iptables rules
 
 ----------------
 
-###C?u h�nh neutron trong file /etc/neutron/neutron.conf:
+###Cấu hình neutron trong file /etc/neutron/neutron.conf:
 
-####s? d?ng Keystone d? x�c th?c :
+####sử dụng Keystone để xác thực :
     # crudini --set /etc/neutron/neutron.conf DEFAULT auth_strategy keystone  
     # crudini --set /etc/neutron/neutron.conf DEFAULT api_paste_config /etc/neutron/api-paste.ini 
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_host controller 
@@ -51,19 +51,19 @@ c�c l?nh c� th? s? d?ng ? d�y nhu ip, route, iptables, telnet ho?c ping�
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken admin_user neutron
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken admin_password neutron
 
-####s? d?ng file /etc/neutron/api-paste.ini l�m m�i tru?ng d? x�c th?c:
+####sử dụng file /etc/neutron/api-paste.ini làm môi trường để xác thực:
     # crudini --set /etc/neutron/api-paste.ini filter:authtoken auth_host controller 
     # crudini --set /etc/neutron/api-paste.ini filter:authtoken auth_uri http://controller:5000 
     # crudini --set /etc/neutron/api-paste.ini filter:authtoken admin_tenant_name service 
     # crudini --set /etc/neutron/api-paste.ini filter:authtoken admin_user neutron 
     # crudini --set /etc/neutron/api-paste.ini filter:authtoken admin_password neutron
 
-####C?u h�nh Neutron s? d?ng d?ch v? message queue
+####Cấu hình Neutron sử dụng dịch vụ message queue
     # crudini --set /etc/neutron/neutron.conf DEFAULT rpc_backend rabbit
     # crudini --set /etc/neutron/neutron.conf DEFAULT rabbit_host = controller
     # crudini --set /etc/neutron/neutron.conf DEFAULT rabbit_password = RABBIT_PASS
 
-####C?u h�nh nova s? d?ng neutron thay cho nova-network trong /etc/nova/nova.conf
+####Cấu hình nova sử dụng neutron thay cho nova-network trong /etc/nova/nova.conf
 
     # crudini --set /etc/nova/nova.conf DEFAULT network_api_class nova.network.neutronv2.api.API 
     # crudini --set /etc/nova/nova.conf DEFAULT neutron_url http://controller:9696
@@ -73,43 +73,43 @@ c�c l?nh c� th? s? d?ng ? d�y nhu ip, route, iptables, telnet ho?c ping�
     # crudini --set /etc/nova/nova.conf DEFAULT neutron_admin_password neutron 
     # crudini --set /etc/nova/nova.conf DEFAULT neutron_admin_auth_url http://controller:35357/v2.0
 
-(nova s? d?ng firewall_driver d? c?u h�nh firewall cho nova-network, khi s? d?ng neutron, d�ng n�y c?n dc c?u h�nh l� nova.virt.firewall.NoopFirewallDriver d? nova k s? d?ng firewall_driver n?a )
+(nova sử dụng firewall_driver để cấu hình firewall cho nova-network, khi sử dụng neutron, dòng này cần dc cấu hình là nova.virt.firewall.NoopFirewallDriver để nova k sử dụng firewall_driver nữa )
 
-####C?u h�nh nova s? d?ng neutron api d? tri?n khai security group:
+####Cấu hình nova sử dụng neutron api để triển khai security group:
     # crudini --set /etc/nova/nova.conf DEFAULT security_group_api neutron
 
-####C?u h�nh core_plugin
-�? th�ng b�o cho neutron bi?t s? d?ng c�ng ngh? n�o d? t?o switch ?o, c?n khai b�o trong core_plugin. M?i c�ng ngh? c� 1 driver ri�ng:
+####Cấu hình core_plugin
+Để thông báo cho neutron biết sử dụng công nghệ nào để tạo switch ảo, cần khai báo trong core_plugin. Mỗi công nghệ có 1 driver riêng:
 
   - LinuxBridge: neutron.plugins.linuxbridge.lb_neutron_plugin.LinuxBridgePluginV2
   - Open vSwitch: neutron.plugins.openvswitch.ovs_neutron_plugin.OVSNeutronPluginV2
 
-? d�y ta s? d?ng ML2 plugin d? m? r?ng kh? nang s? d?ng c�c c�ng ngh? kh�c nhau, chi ti?t ph?n khai b�o c?u h�nh c�c c�ng ngh? du?c c?u h�nh trong file /etc/neutron/plugins/ml2/ml2_config.ini
+ở đây ta sử dụng ML2 plugin để mở rộng khả năng sử dụng các công nghệ khác nhau, chi tiết phần khai báo cấu hình các công nghệ được cấu hình trong file /etc/neutron/plugins/ml2/ml2_config.ini
 
-####DHCP v� ti?n tr�nh Dnsmasq
-Khi DHCP du?c enable, ti?n tr�nh dnsmasq du?c kh?i ch?y b�n trong m?i dhcp namespace, c� nhi?m v? d�ng vai tr� nhu 1 dhcp server c?p ip d?ng cho c�c VM trong 1 tenant. 
-M?i dhcp namespace du?c g�n 1 port tap v� n?i t?i br-int tr�n node network. Show dhcp namespace port b?ng c�u l?nh:
+####DHCP và tiến trình Dnsmasq
+Khi DHCP được enable, tiến trình dnsmasq được khởi chạy bên trong mỗi dhcp namespace, có nhiệm vụ đóng vai trò như 1 dhcp server cấp ip động cho các VM trong 1 tenant. 
+Mỗi dhcp namespace được gán 1 port tap và nối tới br-int trên node network. Show dhcp namespace port bằng câu lệnh:
 
     ip netns exec {dhcp-namespace-ID} ip a
-ta s? th?y port tap d�.
+ta sẽ thấy port tap đó.
 
-####Quy u?c d?t t�n port trong openstack:
-**Tr�n compute node**
+####Quy ước đặt tên port trong openstack:
+**Trên compute node**
 
 - Linux bridge: qbr-ID
-Linux bridge n?m gi?a VM v� br-int, g?m 2 port:
- - port tap g?n v?i VM: tap-ID
- - port veth pair g?n v?i br-int: qvb-ID
+Linux bridge nằm giữa VM và br-int, gồm 2 port:
+ - port tap gắn với VM: tap-ID
+ - port veth pair gắn với br-int: qvb-ID
 - Br-int :
- - port veth pair g?n v?i linux bridge: qvo-ID
- - port patch g?n v?i br-tun
+ - port veth pair gắn với linux bridge: qvo-ID
+ - port patch gắn với br-tun
  
-Tr�n 1 network th� c�c port c?a c�c thi?t b? n�y c� chung ID l� ID c?a network d�.
+Trên 1 network thì các port của các thiết bị này có chung ID là ID của network đó.
 
-**Tr�n network node**
+**Trên network node**
 
-- Br-int: cung c?p router ?o v� DHCP cho instance. g?m c�c port:
- - port tap g?n v?i DHCP namespace: tap-ID
- - port qr g?n v?i router namespace: qr-ID
+- Br-int: cung cấp router ảo và DHCP cho instance. gồm các port:
+ - port tap gắn với DHCP namespace: tap-ID
+ - port qr gắn với router namespace: qr-ID
  
-- Br-ex: cung c?p external connection. G?m port qg g?n v?i router namespace: qg-ID
+- Br-ex: cung cấp external connection. Gồm port qg gắn với router namespace: qg-ID
