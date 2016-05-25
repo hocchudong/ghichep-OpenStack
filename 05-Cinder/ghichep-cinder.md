@@ -1,11 +1,14 @@
 # Các ghi chép về cinder
 
 ## Các chú ý về volume
+- Có 2 cách sử dụng volme: (http://prntscr.com/b8a9l7)
+ - Sử dụng để gắn vào máy ảo đã được tạo trước đó: ==> bootable =  false
+ - Sử dụng để boot máy ảo: ==> bootable =  true
 - Khi tạo volume (chưa gắn vào máy nào) thì tại thư mục `/var/lib/cinder/volume` chưa xuất hiện volume. Khi thực hiện gắn (attach) vào VM nào đó thì mới có volume tại thư mục trên.
 
 - Nếu tách máy Cinder thành 1 node khác thì mặc định volume được tạo ra sẽ lưu tại máy đó.
 
-- Nếu boot máy ảo từ volume, file chứa máy ảo sẽ nằm trên node Cinder. Node compute sẽ mount tới node cinder thông qua iscsi: http://prntscr.com/b8a7b3
+- Nếu boot máy ảo từ volume, file máy ảo sẽ nằm trên node Cinder. Node compute sẽ mount tới node cinder thông qua iscsi: http://prntscr.com/b8a7b3
 
 ## Các lệnh về volume
 
