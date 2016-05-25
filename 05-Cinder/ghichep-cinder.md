@@ -1,5 +1,10 @@
 # Các ghi chép về cinder
 
+## Các chú ý về volume
+- Khi tạo volume (chưa gắn vào máy nào) thì tại thư mục `/var/lib/cinder/volume` chưa xuất hiện volume. Khi thực hiện gắn (attach) vào VM nào đó thì mới có volume tại thư mục trên.
+
+- Nếu tách máy Cinder thành 1 node khác thì mặc định volume được tạo ra sẽ lưu tại máy đó.
+
 ## Các lệnh về volume
 
 - Khởi động các dịch vụ của `Cinder`
@@ -34,8 +39,8 @@ openstack server add volume INSTANCE_NAME VOLUME_NAME
 
 # Trong đó: 
  - INSTANCE_NAME: Tên máy ảo
- - VOLUME_NAME: Tên volime
+ - VOLUME_NAME: Tên volume
 
 # Ví dụ:
-openstack server add volume volume01 vm01
+openstack server add volume vm01 volume01
 ```
