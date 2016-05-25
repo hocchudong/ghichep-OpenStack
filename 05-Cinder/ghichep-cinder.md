@@ -5,6 +5,8 @@
 
 - Nếu tách máy Cinder thành 1 node khác thì mặc định volume được tạo ra sẽ lưu tại máy đó.
 
+- Nếu boot máy ảo từ volume, file chứa máy ảo sẽ nằm trên node Cinder. Node compute sẽ mount tới node cinder thông qua iscsi: http://prntscr.com/b8a7b3
+
 ## Các lệnh về volume
 
 - Khởi động các dịch vụ của `Cinder`
