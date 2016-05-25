@@ -2,8 +2,8 @@
 
 ## Các chú ý về volume
 - Có 2 cách sử dụng volme: (http://prntscr.com/b8a9l7)
- - Sử dụng để gắn vào máy ảo đã được tạo trước đó: ==> bootable =  false
- - Sử dụng để boot máy ảo: ==> bootable =  true
+ - Sử dụng để gắn vào máy ảo đã được tạo trước đó: `bootable =  false`
+ - Sử dụng để boot máy ảo: `bootable =  true`
 - Khi tạo volume (chưa gắn vào máy nào) thì tại thư mục `/var/lib/cinder/volume` chưa xuất hiện volume. Khi thực hiện gắn (attach) vào VM nào đó thì mới có volume tại thư mục trên.
 
 - Nếu tách máy Cinder thành 1 node khác thì mặc định volume được tạo ra sẽ lưu tại máy đó.
