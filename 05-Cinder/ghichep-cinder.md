@@ -26,3 +26,16 @@ openstack volume create --size 1  volume01
 ```sh
 openstack volume list
 ```
+
+- Gắn volume vào máy ảo
+```sh
+# Cú pháp lệnh
+openstack server add volume INSTANCE_NAME VOLUME_NAME
+
+# Trong đó: 
+ - INSTANCE_NAME: Tên máy ảo
+ - VOLUME_NAME: Tên volime
+
+# Ví dụ:
+openstack server add volume volume01 vm01
+```
