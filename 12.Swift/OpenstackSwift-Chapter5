@@ -1,0 +1,220 @@
+Part2:
+ Chapter 5: Tổng quan về Swift API
+Chương này sẽ hữu ích đối với các dev, và kiến trúc sư khi xem xét xây dựng 1 hệ thống bao gốm Swift hoặc những người viết code để cài đặt Swift. Trong phần đầu tiên, chúng ta sẽ có cái nhìn tổng quan nhất về khái niệm nền tảng trong việc sử dụng Swift. Phần thứ 2 chúng ta sẽ tìm hiểu những khái niệm lý thuyết, thực tế ảnh hưởng đến việc thực hiện Swift. Phần tiếp theo và cuối cùng chúng ta sẽ có cái nhìn tổng quan làm việc vs API, các vấn đề cơ bản về xác thực, hồi dữ liệu và lưu trữ làm thế nào để cập nhật siêu dữ liệu và sử dụng siêu dữ liệu tốt nhất.
+
+API là gì?
+API là viết tắt của application programming interface (giao diện lập trình ứng dụng). 1 API là 1 tập các quy tắc để tương tác với hệ thống phần mềm. 1 cam kết từ API là: Nếu như bạn có thể đáp ứng đúng về các loại dữ liệu và các phương thức thì bạn sẽ nhận được kết quả nếu không sẽ báo lỗi. 1 cách đơn giản hơn API là 1 tập hợp các hướng dẫn làm thế nào để sử dụng 1 hệ thống phần mềm.
+Các API Swift là 1 tập các quy tắc xác định các kiểu yêu cầu HTTP mà bạn được phép gửi đến 1 Swift cluster, những hồi âm thành công hoặc thất bại được trả lại trong các trường hợp khác nhau. Những phản hồi đó sẽ chứa dữ liệu. Chúng ra sẽ thảo luận về chi tiết API trong trang này.
+Trước khi tập trung vào việc sử dụng Swift, chúng ta sẽ xem xét 1 chút về các lý thuyết nền sẽ giải thích cách Swift hoạt động, các quyết định thiết kế hình thức và những quyết định ảnh hưởng đến cách các bạn sử dụng Swift
+
+Định lý CAP (Consistency-Availability-Partion tolerance)
+Được đề xuất vào năm 2000 bởi Eric Brewer thuộc UC Berkeyley và chính thức được chứng minh vào năm 2002 bởi Seth Gilbert và Nancy Lynch thuộc MIT, nói rằng: Không thể phân phối các dịch vụ 1 cách đồng thời mà vẫn đảm bảo  tính nhất quán (tất cả các server và client có thể nhìn thấy các hoạt động xảy ra theo cùng thứ tự) tính khả dụng (tất cả các yêu cầu client nhận sẽ được phản hồi lại ở mọi thời điểm) khả năng chịu phân vùng (hệ thống có thể được sử dụng ngay cả khi các liên kết mạng tùy chỉnh không có sẵn)
+Khả năng chịu phân vùng: Chữ P trong định lý CAP: các mạng sẽ được phép mất gói tin bất kỳ được gửi tới từ các nút khác nhau. Hệ thống không chịu phân vùng là  hệ thống đơn node hoặc không sử dụng được. Sự đảm bảo tính sẵn sàng có vẻ dễ dàng thực hiện nhất: 1 server có thể đơn giản thử giao tiếp với các node ngang hàng để update, trả về mã lỗi nếu không nhận được phản hồi từ họ nhưng có 1 vấn đề, chúng ta sẽ không biết tin nhắn bị mất khi đi từ server tới peer (trong trường hợp peer nhận giá trị cũ) hoặc bị mất khi từ peer trả về cho server (trong trường hợp các peer được cập  nhật thành công). Vì vậy khi không thành công thì server gốc sẽ không biết được phản hồi thành công hay thất bại.
+Gần đây, các nhà nghiên cứu khác đã định nghĩa lại chính xác hơn các khai niệm trong định lý CAP. Daniel Abadi chỉ ra rằng không giống như tính nhất quán và tính khả dụng, khả năng chịu phân vùng không phải là 1 điều j đó mà 1 thiết kế có thể chọn để đánh đổi. Hoặc hệ thống thì có thể chịu phân vùng hoặc không. Điều chính xác được quan tâm hơn là cách 1 hệ thống xử lý khi phân vùng mạng, và cách xử lý khi mạng không phần vùng. Abadi gọi đó là "PACELC". Trong 1 phân vùng (P) hiện có các hệ thống sẵn có ưu tiên (A) hoặc nhất quán (C), còn không (E) nếu nó không phân vùng, nó sẽ ưu tiên độ trễ (L) hoặc tính nhất quán  (C)?
+Có những cảnh báo về việc sử dụng các thuật ngữ "consistency" có nghĩa là có j đó khác nhau trọng định nghĩa của CAP- những giá trị chung về trật tự các hoạt động- so với ACID (số thành phần, tính hất quán, cô lập và độ bền) có ý nghĩa trong cơ sử dữ liệu, nơi mà nó đề cập đến hạn chế việc cơ sử dữ liệu bị xâm phạm.
+1 cuộc thảo luận chứng minh định lý CAP (và các trường hợp thú vụ của nó) đã vượt qua phạm vi của quyển sách này. nhưng ddunhj lý cung cấp 1 cách đơn giản lý do tại sao các hệ thống phân tán được thiết kế để đảm bảo tính nhất quán (như hệ thống giao dịch có 1 cơ sở dữ liệu phân phối) hoặc tính khả dụng (như Swift) nhưng không thể cả 2. Cần lưu ý rằng đây là khá đơn giản vì các kết quả đã được chứng minh bởi định lý CAP và Brewer và những người khác đã viết về cách làm thế nào để hệ thống (bao gồm cả Swift) chọn ra hoặc tính nhất quán, hoặc tính khả dụng và 1 số trường hợp có cả 2 điều đó.Tuy nhiên chắc chắn rằng, việc duy trì tính nhất quán và tính khả dụng đối với phân vùng mạng là khó khăn nhất, rất phức tạp và dễ bị bẻ vỡ vì vậy nó đã được chứng minh là không thể.
+Swift là 1 hệ thống AP cổ kiển cơ bản theo định nghĩa CAP, nó cung cấp tính sẵn sàng cao khi đối mặt với khả năng chịu phân vùng, nhưng các client khác nhau có thể thấy các hoạt động theo các thứ tự khác nhau và dữ liệu có thể sẽ không phù hợp. Trong thực thế, ở 1 trường hợp bất thường nào đó, hệ thống có thể cho 1 khách hàng duy nhất viết 1 giá trị mới, khi nhìn thấy hoạt động này hoàn tất, vấn đề đọc 1 giá trị và lấy giá trị cũ. Mặc dù bạn có thể tạo thành công 1 object tuy nhiên danh sách object của container sẽ không nhìn thấy đối tượng đó. Sau 1 thời gian nhất định, hệ thống sẽ được cập nhật đầy đủ và thống nhất. Swift sẽ đảm bản được sự hội tụ về 1 hệ thống thống nhất. Tuy nhiên, các ứng dụng phải được thiết kế để chịu được việc Swift không ổn định cho tới khi việc thống nhất dữ liệu được phục hồi. Đây có thể là sự khác biệt dành cho các dev quen với việc đảm bảo dữ liệu theo ACID
+Swif là hệ lớp của hệ thống được mô tả bởi cụm từ BASE (basically available, soft state, eventual consistency), dùng để phân biệt vs hệ thống ACID. Trong số những mô tả, thống nhất cuối cùng là 1 trong đó và dường như là thách thức lớn nhất đối với các nhà phát triển đã quen vs ACID.
+
+*Ưu điểm của Swift: HA, dư thừa và thông lượng:
+Loại ứng dụng nào là ứng cử viên tốt nhất đối với hệ thống Swift với kiến trúc trên, ứng dụng nào sẽ không làm việc tốt với Swift?
+Do tính thống nhất cuối cùng của Swift, bất kỳ ứng dụng nào có tính chất giao dịch hoặc cần đảm bảo ACID, chẳng hạn như hệ thóng đặt phòng du lịch, phải đảm bảo 2 người sẽ không mua vé như nhau, hoặc hệ thống ngân hàng phải đảm bảo 2 giao dịch sẽ không rút tiền cùng nguồn sẽ không phù hợp với Swift. Tương tự như vậy, nếu ứng dụng của bạn yêu cầu mà khác hàng gần như luôn luôn phải nhìn thấy dữ liệu (và nếu thất bại trong khi thời gian bị chậm trễ, mà khách hoàng luôn đồng ý đọc ghi dữ liệu đồng thời) bạn cũng không nên chọn hệ thống AP cho dữ liệu của bạn lưu trữ. Mặc dù Swift có thể giúp chống lại sự xung đột về tiêu đề như Etags nhưng các hoạt động giao dịch không phải là điểm mạnh của Swift hay bất kỳ hệ thống AP nào.
+Mặt khác, Swift vượt trội ở tính sẵn sàng cao, dư thừa và thông lượng và đượng nhiên về khả năng lưu trữ. Tập trung hơn vào sự khả dụng hơn là nhất quán, Swift không có sự giao dịch hoặc trễ khóa. Số lượng lớn dữ liệu có thể đọc nhanh cùng 1 lúc, ngay cả khi ghi 1 số lượng lớn được ghi cũng sẽ hoàn thành rất nhanh. Mõi ghi chú về dấu thời gian của nó và thống nhất cuối cùng để đảm bảo rằng xung đột được giải quyết sau thời gian chậm trễ.
+Swift rất tuyệt vời ở tính sẵn sàng cao. nếu mạng là không tin cậy, 1 hệ thống phân phối thích hợp mạnh mẽ sẽ bị trì trệ, nhưng Swift có thể tiếp tục lưu trữ và lấy dữ liệu. Có 1 số cấu hình đối với các bản sao dự phòng dữ liệu của bạn nghĩa là bạn có thể tùy ý tăng thông lượng của Swift cho việc tải nặng, hoặc làm tăng độ bền của Swift khi đối mặt với nhiều ổ điã thất bại.
+Swift cũng hỗ trợ cluster multi-region, nơi mà các máy chủ dự phòng được đặt trên các vị trí khác nhau thuộc cùng 1 trung tâm dữ liệu, nhưng không phải bất cứ nơi nào trên thế giới. Bởi vì điều này đòi hỏi traffic định tuyến độ trễ cao, giống như phân vùng network và hiệu suất của các hệ thống thích hợp trở nên khủng khiếp. Swift mặt khác không chỉ tiếp tục hoạt động mà còn cung cấp điểm phân phối truy cập internet độ trễ thấp. Mặc dù điều này có thể có 1 tác động tiệu cực đến thời gian giải quyết cần thiết để có sự thống nhất dữ liệu sau khi ghi, 1 số hệ thống sẽ sẵn sàng đồng ý giảm thương mại, và trả lại phần lớn hệ thống nhất quán cao mà không sử dụng được.
+Trong thời gian ngắn, nếu hệ thống của bạn sẵn sàng chấp nhận những giới hạn về tính nhất quán cuối cùng của Swift để đổi lấy lợi ích về tính sẵn sàng cao, độ dư thừa và thông lượng lớn. Swift có thể là lwuaj chọn tốt cho kiến trúc của bạn. Ví dụ về các công dụng tuyệt vời của Swift bao gồm:
+- Lưu trữ dữ liệu người dùng từ các ứng dụng web
+- Các hoạng động song song không bị chặn trên các tậ dữ liệu lớn BigData
+- Phục vụ tải nặng với các trang web có lưu lượng cao.
+- Hệ thống có dịch vụ thỏa thuận (SLAs) bao gồm HA hoặc đảm bảo độ bền
+- Lưu trữ các tập tin độc lập lớn như hình ảnh hoặc video.
+- Giải pháp lưu trữ doanh nghiệp đối với các dự án chia sẻ hoặc dịch vụ dữ liệu mạng nội bộ
+- Tập tin lưu trữ đĩa, hình ảnh chụp, sao lưu ảnh hoặc dữ liệu máy tính trung tâm trích lập dự phòng.
+
+Swift API: Background
+Về cơ bản, Swift được truy cập thông qua RESTful HTTP API. Nhiều nhà phát triển đã quen thuộc với HTTP và 1 số đã quen thuộc với các thủ thuật hoặc bẫy liên kết với nó. REST là 1 thuật ngữ đã bị lệch lạc so với ban đầu. Nó thường được chính thức sử dụng đơn giản là để chỉ tham khảo 1 giao thức truyền thông không quốc tịch, trong khi định nghĩa ban đầu của REST là 1 thuật ngữ nhiều hơn nữa, rất rộng lớn và mạnh mẽ bao gồm khả năng khám phá dịch vụ, tối ưu hóa mạng lưới để phục vụ yêu cầu. Trước khi thảo luận về API trong Swift, cta sẽ xem xét nhanh chóng các vấn đề cơ bản của HTTP và REST để đảm bảo thống nhất vê thuật ngữ.
+Review về HTTP:
+Vì Swift hoạt động dựa và các HTTP verbs và các tiêu đề cho cả metadata vè hệ thống các thông số. Nó sẽ rất hữu ích để xem xét các phương thức HTTP.
+Khi bạn truy cập vào 1 trâng web đơn giản tĩnh trong trình duyệt của bạn, trình duyệt sẽ thực hiện 1 loạt các hành động thay cho bạn:
+1. Nó sẽ tạo kết nối TCP đến cổng 80 của máy chủ.
+2. Nó phát các yêu cầu cơ bản của trang web của bạn đến máy chủ
+3. Nó sẽ cung cấp 1 danh sách các tiêu đề của máy client đến máy chủ.
+4. Nó sẽ nhận mã trạng thái yêu cầu từ máy chủ (202,400...)
+5. Nó sẽ nhận danh sách các tiêu đề máy chủ từ máy chủ
+6. Nó nhận dữ liệu- có lẽ là HTML từ máy chủ
+7. Nó có thể xử lý các dữ liệu trên các tiêu đề (ví dụ như là gzip nó sẽ giải nén...)
+8. Cuối cùng trình duyệt sẽ trả về kết quả.
+Dưới đây là yêu cầu và kết quả trả về HTTP tiêu biểu
+GET /path/to/page.html HTTP/1.1
+Host: www.example.com
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:26.0) Gecko/20100101
+Firefox/26.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Cookie: cookie1=aaa; cookie2=bbb
+Connection: keep-alive
+X-User-Full-Name: Alice Adams
+HTTP/1.1 200 OK
+Content-Encoding: gzip
+Content-Type: text/html; charset=UTF-8
+Date: Fri, 27 Dec 2013 23:24:03 GMT
+Server: Apache/2.2.22 (Ubuntu)
+Last-Modified: Thu, 23 Apr 2009 21:43:46 GMT
+ETag: "b221a-13d-4683fc64ce880"
+Accept-Ranges: bytes
+Set-Cookie: cookie1=yyy; cookie2=zzz
+Content-Length: 8317
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+[content of the web page goes here]
+Trong cả 2 yêu cầu và trả về, nội dung quan trọng nhất là những dòng đầu tiên, Dòng đầu tiên yêu cầu GET /path/to/page.html HTTP/1.1 cho máy chủ mà client dđang phát ra yêu cầu get vs URL là /path/to/page.html sử dụng giao thức HTTP 1.1. Dòng đầu tiên của kết quả trả về là thông tin tới client rằng đã thành công.
+Sau dòng đầu tiên của yêu cầu, Client sử dụng tiêu đề yêu cầu để yêu giao tiếp thông tin bổ sung ảnh hưởng trực tiếp tới các request, chẳng hạn như định dạng, ngôn ngữ, và mã encoding mà nó sẵn sàng chấp nhận, những j trình duyệt sử dụng, và 1 số thông tin tùy chỉnh trong tiêu đề bắt đầu với "X-" Hãy lưu ý quy ước này đặt tên tiêu đề của "X-" cho các ứng dụng, mục đích cụ thể mà swift sử dụng nhiều các tính tăng của HTTP.
+Dòng đầu tiên của thông tin trả về cung cấp mã  trạng thái theo 1 mô tả tiêu chuẩn,trong trường hợp này là 200 và tương ứng là OK. Có rất nhiều các mã trạng thái khác nhau cho sự thành công và lỗi khác nhau đã nhắc ở chapter 4. Trạng thái có trong khoảng 200-299 là các loại khác nhau của sự thành công, trong khi phạm vi 300-399 được sử dụng để chuyển hướng, các 400-499 phạm lỗi khách hàng, và 500-599 phạm vi cho các lỗi máy chủ. (Các thông tin phạm vi 100-199 được ít được nhìn thấy bởi các nhà phát triển và người sử dụng, mặc dù nó được chủ động sử dụng.)
+Sau dòng đầu tiên của kết quả trả về, các máy chủ cung cấp 1 số siêu dữ liệu trong tiêu đề của nó. chẳng hạn như độ dài của nội dung, ngày nó được sửa đổi lần cuối, và thực tế các nội dung được nén vs gzip. Nó cũng sử dụng tiêu đề bắt đầu với "X-" cho mục đích ứng dụng cụ thể của nó.
+Ví dụ này sử dụng 1 yêu cầu GET, loại phổ biến nhất của các yêu cầu trên web. Yêu cầu GET được sử dụng để lấy dữ liệu. Máy chủ không nên diễn giải 1 yêu cầu GET theo cách sửa đổi dữ liệu, nhưng hãy nhớ rằng không phải tất cả máy chủ đều là tốt trong mọi tình huống (ví dụ 1 trang web có thể cung cấp cho người dùng khả năng để xóa dữ liệu, và trong 1 hệ thống thực hiện kém, nó sẽ chuyển yêu cầu GET đó tới cho server. Trong khi hầu hết các trang web ngày nay sẽ không làm điều này, điều này đã xảy ra trong quá khứ và nó cho bạn thấy được không nên phụ thuộc vào hệ thống bên ngoài để thực hành 1 cách tốt nhất ). HTTP hỗ trợ các phương pháp khác (con gọi là verbs) bên cạnh GET. Phương thức HEAD chỉ để láy tiêu đề, không phải là dữ liệu thực tế, nó có chức năng như 1 yêu cầu GET mà bỏ qua dữ liệu. Việc này sẽ hữu ích đối với việc dữ liệu lớn và chỉ cần làm việc với các header. Phương thức PUT được sử dụng để lưu trữ dữ liệu trên các máy chủ có hỗ trợ nó trong trường hợp thích hợp, chẳng hạn như khi người dùng được phép thực hiện như vậy. Phương thức DELETE yêu cầu máy chủ xóa thông tin tại URL nào đó, và cũng phụ thuôc vào quyền. Phương thức OPTION yêu cầu máy chủ những j các phươg thức được phép đối vs URL nhất định. Trình duyêt như firefox, internet Exploser và Chrome thường không phơi bày các phương thức HTTP khác có thể được gọi với các công cụ dòng lệnh cURL hoặc phía khách hàng Javascript. Các trang web hiện tại sử dụng rộng rãi các phương thức HTTP.
+Mặc dù các phương thức GET, PUT, HEAD, DELETE, OPTIONS thực hiện các hành động raart khác nhau nhưng đều có 1 điểm chung là chúng đều "idempotent". ĐIều này nghĩa là lặp đi lặp lại những yêu cầu giống nhau mạng lại kết quả tương tự như 1 yêu cầu duy nhất. Ví dụ nếu bạn PUT 1 dữ liệu 1 đến máy chủ nhiều lần trong 1 tháng kết quả cũng sẽ như 1 lần. Nếu bạn DELETE một URL nhiều lần trong hàng, 1 lần nữa kết quả trả về như bạn DELETE 1 lần duy nhất. Gửi yêu cầu GET, HEAD hoặc OPTIONS không thay đổi dữ liệu trên máy.
+Phương thức POST là phương thức HTTP dành cho các yêu cầu mà có thể sẽ không "idempotent". Ví dụ POST có thể được sửu dụng để tạo ra 1 đối tượng mới, chẳng hạn như 1 giao dịch thẻ tín dụng mới. Nếu bạn phát POST 2 lần bạn đã tạo ra 2 giao dịch, không phải là 1 kết quả giống nhau.
+Cấu trúc này đã được sử dụng và đặt ra trong các đặc điểm kỹ thuật từ năm 1990. Tuy nhiên do đặc điểm kỹ thuật đầy đủ và sửa đổi, giao thức trình duyệt 1.0 chỉ thực hiện GET và POST, tuy nhiên sự hữu ích của các dộng từ khác đã trở nên rõ ràng và được sử dụng rộng rãi.
+Trong phát triển web ngày nay, gần như tất cả các framework đều sử dụng các phương thức HTTP khác ngoài GET và POST. Rails và Sinatra là những ví dụ hàng đầu trong thế giới Ruby. Trong python, tastypie và Piston là 2 ví dụ đại diện trog số rất nhiều cách để hiện đại hóa Django trong vấn đề đó
+
+REST(Representational State Transfer)
+Roy Fielding, một trong các tác giả của các đặc điểm kỹ thuật HTTP, đã viết một luận án tiến sĩ vào năm 2000 giới thiệu khái niệm của ông về REST. Ý kiến của Fielding bao gồm nhiều khái niệm liên quan đến nhau, bao gồm cả các dịch vụ có tính khám phá, ý tưởng của URIs tham khảo từ các nguồn, giao thức a noun-based tương phản với kiểu giao thức RPC verb-based, bộ nhớ đệm và hành vi proxy, 1 kiểu mẫu của tối ưu hóa mạng phục vụ yêu cầu, và quan sát sâu sắc. Đáng buồn thay, thuật ngữ "REST của" thường xuyên bị lạm dụng để chỉ đơn thuần là để thông tin liên lạc không quốc tịch trên HTTP, thường với một đọc-update-xóa tạo-(CRUD) API.
+Mặc dù HTTP là 1 giao thức tốt cho kiến trúc mạng hướng dịch vụ và thông tin liên lạc giữa các thực thể cung cấp nhiều lợi ích (như cách ly tốt hơn và khả năng kiểm thử các thành phần kiến trúc)sử dụng thuật ngữ "REST của" Fielding chứa đựng một tầm nhìn rộng lớn hơn nhiều. Đặc biệt, các khái niệm về dịch vụ khám phá là một ý tưởng có giá trị mà làm cho một dịch vụ RESTful dễ dàng để phát triển chống lại và dễ dàng hỗ trợ trên nhiều phiên bản với các khả năng khác nhau. Người đọc quan tâm được kêu gọi để đọc luận án rất dễ tiếp cận Fielding.
+
+Swift, HTTP, REST
+Với nền tảng trên, giải thích Swift API trở nên khá đơn giản. Swift sử dụng RESTful HTTP API. Dữ liệu được lấy ra với 1 HTTP GET, lưu trữ với 1 PUT và xóa vs DELETE. Metadata được lưu trữ trong các header nên câu lệnh HEAD sẽ được sử dụng.
+Đặc biệt với mã 404 file not found thực sự thể hiện là không tìm thấy file chứ không phải vì cú pháp không đúng ở đâu đó. Client có thể đưa ra bất kỳ 1 tiêu đề HTTP quy định cụ thể thêm nhiều tính năng Swift tiên tiến để áp dụng cho yêu cầu của họ.
+Swift sử dụng tiêu dề HTTP server để cung cấp cho khách hàng với nhiều kiểu khác nhau của siêu dữ liệu liên quan tới yêu cầu. Là 1 dev, nếu bạn có 1 cách gửi yêu cầu HTTP và nhận trả về hồi âm(bao gồm cả header) cho dù trong hình thức của 1 thư viện client có 1 công cụ dòng lệnh như cURL bạn có tất cả những j cần thiết để phát triển với Swift. Không giống như nhiều hệ thông khác, ko có SDK đặc biệt (bộ phát triển phần mềm) là HTTP tất cả những j bạn cần để khám phá tính năng Swift.
+Tất nhiên, không phải mọi client được ủy quyền cho mọi hoạt động. Alice sẽ không nên được xóa toàn bộ dữ liệu của Bob là 1 ví dụ. Các vấn đề chung như xác thực (xác minh người dùng) và ủy quyền (xác định những gì 1 người dùng được phép làm) gọi chung là "auth". Swift cho phép các quản trị viên hệ thống cấu hình bất kỳ với 1 số hện thống auth, tùy thuộc vào những j họ cần. Các API auth là phiên bản, với auth phiên bản từ 1 đến 3 được sử dụng tích cực. Chúng ta sẽ thảo luận chủ yếu về phiên bản 1 auth trog cuốn sách này bởi nó đơn giản và phù hợp với nhiều nhu cầu. Trong phiên bản 1, 1 yêu cầu được thực hiện cho các hệ thống xác thực với X-Auth-User và X-Auth-Key cần được thiết lập, nếu người sử dụng cung cấp mật khẩu chingx cá, Swift sẽ đưa về 1 phản hồi cứa X-Auth-Token. Thẻ được sử dụng trên yêu cầu tiếp theo để chứng minh client đã xác thực thành công. Việc đối phó với 1 yêu cầu xác thực thành công cũng chứa 1 XStorage-Uro header, xác định gốc URI của 1 tài khoản chính của người sử dụng, yêu cầu auth sẽ được thảo uận chi tiết hơn ở phần sau.
+HTTP API RESTful Swift sản xuất hệ thống rất dễ dàng với các dev để có thể hiểu và mô tả, mỗi lời gọi API là 1 HTTP đơn lẻ. Với các ngoại lệ là 1 thông mã thông bác xác thực hợp lệ phải được lấy ra để sử dụng cho các hoạt động sau này, mỗi HTTP đi vòng ko đòi hỏi kiến thức khác về hệ thống. Năng lực này để kiểm soát và quan sát trạng thái của nó làm cho Swift dễ dàng hơn so với các nền tảng khác. Bạn có thể sao chép nội dung HTTP với các công cụ dòng lệnh như cURL để khẳng định hành vi của hệ thống, nhưng khi xây dựng các ứng dụng, hầu hết các dev muốn sử dụng 1 thư vện Swift cho ngôn ngữ ưa thích của họ, Trong chương tiếp theo, chúng ta sẽ cung cấp các ví dụ từ thư viện python với 1 số thảo luận về các ràng buộc ngôn ngữ khác.
+
+
+Sử dụng Swift API
+Mặc dù chúng ta sẽ thảo luận Swift API chi tiết hơn ở các chương sau, nhưng ở đây chúng ta sẽ trình bày tổng quan về HTTP APi, RESful là như thế nào và giúp bạn biết cách kết hợp Swift vào 1 kiến trúc hiện tai là khá đơn giản. Phần này giả định 1 cài đặt Swift làm việc, 1 người dùng 1 mật khẩu hợp lệ và 1 tài khoản lưu trữ có sẵn trong cluster
+Về Swift Cluster của bạn:
+Trước khi bạn cố gắng truy cập vào dữ liệu, bạn có thể muốn có 1 số thông tin về cụm Swift của bạn như phiên bản nó chạy, giá trị được cấu hình cho các thông số của nó như kích thước tối đa, những tính năng được kích hoạt bởi môi trường trung gian. Tất cả những thông tin này có sẵn thông qua các API thông tin Swift cluster, mà có thể được truy cập bởi yêu cầu GET đơn giản tới "đường dẫn/info" bên dưới URL co sử của cụm Swift. Ví dụ: nếu URL cơ sở của cụm Swift là  http://swift.example.com, bạn có thể nhận được thông tin với GET tới URL là  http://swift.example.com/info. Các API thông tin cluster là công cộng, không có yêu cầu xác nhận.
+Trả vê thông tin của 1 yêu cầu sẽ dưới dạng từ điển JSON như sau:
+{
+ "tempauth": {
+ "account_acls": true
+ },
+ "slo": {
+ "max_manifest_segments": 1000,
+ "min_segment_size": 1048576,
+ "max_manifest_size": 2097152
+ },
+ "swift": {
+ "max_file_size": 5368709122,
+ "account_listing_limit": 10000,
+ "max_meta_count": 90,
+ "max_meta_value_length": 256,
+ "container_listing_limit": 10000,
+ "version": "1.12.0.37.g45feab5",
+ "max_meta_name_length": 128,
+ "max_object_name_length": 1024,
+ "max_account_name_length": 256,
+ "max_container_name_length": 256
+ }
+}
+Một ứng dụng Swift client có thể lấy và phân tích các thông tin cluster, và sử dụng kết quả để xác định làm thế nào để tiến hành dựa trên khả anwng quảng cáo của cluster. Đây là 1 trong những cách Swift thực hiện các nguyên tắc của RESful
+
+Xác thực(Authentication)
+Với 1 vài trường họp ngoại lệ (chẳng hạn như các yêu cầu thông tin được mô tả trong phần trước), 1 token xác thực ("auth token") là 1 điều kiện tiên quyết cho gần như tất cả các hoạt động của Swift. Bước đầu tiên trong 1 hoạt động Swift là để xác thực và nhận về 1 token. Vì Swift cho phép các quản trị viên gắn vào hệ thống xác thực mà họ lựa chọn, URL auth (URL riêng biệt mà khi xác thực sẽ được gửi đến ) là riêng biệt từ các  từ lưu trữ các URL(Nơi xác định các dữ liệu được lưu trữ) của tài khoảng chính của người dùng. Để xác thực Swift, bạn cần có URL và auth đương nhiên là username và password
+Yêu cầu xác thực của bạn sẽ trông như sau:
+curl -i -X GET -H 'X-Auth-User: myusername' -H 'X-Auth-Key: mysecretpassword' https://swift.example.com/auth/v1.0
+Ở ví dụ này, https://swift.example.com/auth/v1.0 là aut URL, nói chung Swift traffic nên xảy ra qua các kết nối mã hóa HTTPS để bảo vệ tất cả dữ liệu trên dây (thông tin và thẻ cho 1 yêu cầu xác thực, hoặc các nội dung lưu trữ trên chính nó)
+Các hệ thống xác thực sau đó sẽ tạo ra 1 response, nếu như ko có vấn đề j với việc cài đặt Swift và username password của bạn là đúng, nó sẽ trả về trạng thái 200 ok và header của response sẽ trả về auth token và URL lưu trữ của tài khoản chính người sử dụng như sau:
+ X-Auth-Token: AUTH_tkdc764d39fd1c40c9a293cbea142b90d7
+ X-Storage-Url: https://swift.example.com/v1/AUTH_myusername
+ [other HTTP headers]
+Auth token tồn tại với 1 thời gian nhất định, mặc định là 24h. Trong thời gian đó, auth token sẽ cung cấp cho bạn 1 danh tính để xác thực với hệ thống, sau đó kiểm tra xem liệu bạn có được thực hiện các hành động mà bạn yêu cầu ko. Nếu bạn dùng 1 auth token mà bạn đã dùng trước đây mà bạn nhận về 1 response là 401 thì nhguax là token đã hết hạn và phải chức thực lại 1 mã mới.
+Storage URL trả về bới các responese là gốc của khi vự lưu trữ của tài khoảng chính người dùng. Account được hiểu là 1 khu vực lưu trữ dữ liệu, giống như tài khoản ngân hàng, tài khoản Swift có thể được swor hữ bởi 1 người hoặc đồng sở hữu bởi nhiều người. 1 người sử dụng nhất định như Alice hay Bob, có thể có quyền truy cập vào nhiều account Swift bở các cluster có thể được thiết lập vs 1 account (khu vực lưu trữ) cho mỗi nhóm dự án hoặc mỗi dịch vụ. Vì vậy các URL lưu trữ được trả về bởi các yêu cầu auth ko nhất thiết phải là URL lưu trữ duy nhất mà ng dùng có thể truy cập.
+Nó thậm chí còn quan trọng hơn để nghĩ về account Swift như 1 khu vực lưu trữ khi xem xét phân cấp dữ liệu Swift. Ở cấp độ cơ bản của Swift, một account có các container và 1 container có các object. Không giống như filesystem truyền thống, tuy nhiên, container không thể được đặt trong các container khác, và các object không thể được đặt trực tiến trong account mà không có các container. URL của mọi đối tượng trong Swift sẽ như sau:
+https://swift.example.com/v1/myaccount/myconainer/myobject chính xác là 1 account, 1 container và 1 object
+
+Lấy dữ liệu
+Bây giờ khi bạn đã có token xác thực, bạn có thể ra yêu cầu đối với hệ thống lưu trữ. Bạn có thể có 1 URL lưu trữ từ nguồn bên ngoài (như tập tin cấu hình, động nghiệp hay ng quản trụ Swift cluster...) nhưng bây h chúng ta sẽ giả định rằng bạn đang quan tâm đến dữ liệu trong account, URL lưu trữ sẽ trả về phản hồi xác thực, Nếu như bạn xác thực thành công như mô tả ở phần trên, bạn có thể có URL lưu trữ và token trong biến môi trường, có thể sử dụng để đơn giản hóa các yêu cầu đối với hệ thống lưu trữ. Ví dụ giả sử bạn lưu trữ token trong biến môi trường TOKEN và storage URL trong biến mối trường STORAGE_URL. Nếu bạn tạo ra 2 container để đặt ảnh vài video tên là my_photos và y_videos trong account, thì yêu cầu và trả lời sẽ như sau:
+curl -i -X GET -H "X-Auth-Token: $TOKEN" "$STORAGE_URL"
+HTTP/1.1 200 OK
+X-Account-Bytes-Used: 458
+X-Account-Container-Count: 2
+X-Account-Object-Count: 2
+[...other headers...]
+my_photos
+my_videos
+Phản hồi 200 thể hiện là yêu cầu thành công. Nếu bạn cố gắng truy cập vào tài khoản mà bạn không có quyền truy cập, bạn sẽ nhận được phản hồi 403. 401 là xác thực thất bại. Swift cung cấp metadata về tài nguyên trong các header trả về của nó, trong trường hợp này, bạn biết rằng account này có 2 container chứa trong nó, chỉ với 1 object trong mỗi container, sử dụng tổng cộng 458 byte. Sau khi các metadata, nội dung của các response xuất hiện, yêu cầu này là GET trên 1  tài nguyên account (khu vực lưu trữ), đáp ứng được 1 danh sách chứa trong tài khoản đó.
+Lưu ý về Swift header name x-auth-suser: hoặc X-Auth-user là như nhau. Nhưng nên chú ý đến các trường hợp tránh sai tên header này.
+Tương tự như vậy, nếu bạn là 1 GET trên container (như $STORAGE_URL/my_photos ) nội dung trả về sẽ là danh sách các object có trong container và các header chứa metadata về container đó cũng như số lượng object lưu trữ trong nó. Và nếu bạn GET trên object, bạn sẽ lấy được đối tượng và metadata của nó.
+Nếu bạn chỉ quan tâm đến các metadata, bạn có thể sử dụng 1 yêu cầu HEAD thay vì GET. ĐIều này sẽ tránh quá tải mạng, chỉ mang lại cho bạn những thông tin mà bạn muốn
+Khi bạn lấy 1 danh sách trong 1 account hoặc 1 container, bán có thể muốn chúng ở 1 định dạng mà bạn dễ phân tích. Bạn có thể thêm format = json để URL Swift trả về phản hooit dưới dạng JSON hoặc mat=xml,đối vs respenst XML
+% curl -X GET -H "X-Auth-Token: $TOKEN" "$STORAGE_URL?format=json"
+[
+ {"count": 1, "bytes": 458, "name": "my_photos"},
+ {"count": 0, "bytes": 0, "name": "my_videos"}
+]
+% curl -X GET -H "x-auth-token: $TOKEN" "$STORAGE_URL/my_photos?format=json"
+[
+ {
+ "hash": "0450d6d21f1aa2aa1fe4a354c8e62c8f",
+ "last_modified": "2014-01-16T20:01:04.329970",
+ "bytes": 458,
+ "name": "happy.png",
+ "content_type": "image/png"
+ }
+]
+% curl -X GET -H "x-auth-token: $TOKEN" "$STORAGE_URL/my_photos?format=xml"
+<?xml version="1.0" encoding="UTF-8"?>
+<container name="my_photos">
+ <object>
+ <name>happy.png</name>
+ <hash>0450d6d21f1aa2aa1fe4a354c8e62c8f</hash>
+ <bytes>458</bytes>
+ <content_type>image/png</content_type>
+ <last_modified>2014-01-16T20:01:04.329970</last_modified>
+ </object>
+</container>
+Trong ví dụ ta thấy ?format=... tham só truy vấn. 1 yêu cầu GET tới account vẫn trả về 1 danh sách các container nhưng 1 số siêu dữ liệu hữu ích bao gồm trong cấu trúc dữ liệu. Tương tự  như vậy, một yêu cầu GET trên 1 container vẫn trả về 1 danh sách các object nhưng siêu dữ liệu thì được đặ trong cấu trúc dữ liệu. Trong đó ví dụ về JSON, XML đều trả về dữ liệu và dánh ách đầy đủ và thuộc tính đc cấu trúc theo cách thích hợp với định dạng. Với cú pháp JSON hoặc cú pháp XML sẽ được dễ dàng phân tích và sử dụng.
+
+Lưu trữ dữ liệu
+Bạn lưu dữ liệu vào 1 Swift cluster với phương thức HTTP PUT. Điều này không chỉ áp dụng cho quá trình hêm 1 đối tượng vào container mà nó còn dùng để thêm 1 container vào 1 account. Nếu 1 quản trị viên Swift cluster muốn để thêm 1 account vào Swift cũng có thể dùng PUT.
+Trong mọi trường hợp, bạn thực hiện 1 PUT tới URL mà bạn muốn tạo. trái ngược với URL của tài nguyên cha mẹ hoặc bất kỳ chương trình khác. Nếu bạn muốn tạo ra 1 container mới gọi là my_music để đi cùng với my_photo và my_video, ta sẽ dùng lệnh:
+curl -i -X PUT -H "X-Auth-Token: $TOKEN" $STORAGE_URL/my_music
+1 lệnh PUT thành công tạo ra các container mà ko tồn tại trược, các tùy chọn -i cho phpes bạn xem các tiêu đề được trả về bởi Swift như sau:
+HTTP/1.1 201 Created
+Last-Modified: Thu, 16 Jan 2014 19:53:21 GMT
+Content-Length: 0
+Date: Thu, 16 Jan 2014 19:53:20 GMT
+Mã phản hồi 201 là PUT thành công, bây giờ bạn sẽ thấy container mới của bạn cùng với 2 cái khác nếu bạn GET vào account
+Khi bạn Put 1 đối tượng, bạn cũng cần phải cung cấp các dữ liệu được lưu trữ trong object. Khi phát triển 1 ứng dụng, bạn sẽ sử dụng phương thức cung cấp bởi thư viện Swift của bạn. Ở đây chúng ta sẽ thử với lệnh cURL bằng cách tài lên 1 tệp tin như sau:
+curl -i -X PUT -H "X-Auth-Token: $TOKEN" $STORAGE_URL/my_music/my_song.mp3 -T /tmp/song.mp3
+cURL sử dụng cờ -T để cung câp dữ liệu đối tượng. ĐIều này sử dụng cURL là phù hợp để thử nghiệm các kịch bản nhỏ. Trong 1 nỗ lực phát triển phần mềm phức tạp hơn, thư viện Swift như python-swiftclient sẽ cung cấp chức năng tương đương nhưng hiệu quả hơn bằng cách cho phép truyền tải dữ liêu hơn là đòi hỏi 1 tập tin trong hệ thống, và không sinh ra 1 subshell chạy cURL.
+
+Xóa dữ liệu.
+Khá đơn giản khi xóa 1 đối tượng.
+curl -i -X DELETE -H "x-auth-token: $TOKEN" $STORAGE_URL/junk_container/junk_object
+Swift ngăn chặn tình trạng xóa nhầm  dữ liệu bằng cách đảm bảo container còn trống bạn mới có thể xóa. Nếu như bạn cố xóa 1 container ko trống sẽ báo lỗi 409 xung đột.
+% curl -i -X DELETE -H "x-auth-token: $TOKEN" $STORAGE_URL/junk_container
+HTTP/1.1 409 Conflict
+Content-Length: 95
+Content-Type: text/html; charset=UTF-8
+X-Trans-Id: txe0fa9bced54448ecb3753-0052d84131
+Date: Thu, 16 Jan 2014 20:29:37 GMT
+<html>
+ <h1>Conflict</h1>
+ <p>There was a conflict when trying to complete your request.</p>
+</html>
+Tuy nhiên khi bạn xóa tất cả các đối tượng trong container r thì yêu cầu trên sẽ thành công.
+
+
+Cập nhật dữ liệu.
+Các phương thức HTTP POST được sửu dụng để cập nhật metadata của 1 object, container hoặc account.(Vì lý do lịch sử, một PUT để một container cũng cập nhật siêu dữ liệu chứ không phải là ghi đè lên nó, nhưng việc sử dụng này không được khuyến cáo.) Một POST đến 1 object cập nhật metadata của nó mà không cần thiết gửi lại nội dung của object. Trong ví dụ trên chúng ta sẽ lưu 1 tập tin mp3  Khi ai đó lấy nó, chúng ta có thể muốn Content-Type tiêu đề của nó được thiết lập một cách chính xác. Chúng ta có thể làm điều này trong các PUT ban đầu, nhưng chúng ta có thể dễ dàng cập nhật ngay:
+curl -i -X POST -H "X-Auth-Token: $TOKEN" -H "Content-Type: audio/mpeg" $STORAGE_URL/my_music/my_song.mp3
+Yêu cầu này đưa đến kết quả vài trăm bytes chứ không phải vài megabyte traffic trong hệ thống.
+Ngoài metadata chuẩn như Content-Type, Swift cũng cho phép và khuyến khích các bạn thiết lập metadata trùy chỉnh trên các object, container, và account. Khi phát triển hệ thống Swift, hãy xem xét những j siêu dữ liệu có thể cải thiện hiệu suất cho hệ thống của bạn, giúp người dùng hiểu được những j họ đang lấy, hoặc chỉ rõ 1 số nguồn tài nguyên là thích hợp nhất. Hiện có rất nhiều công dụng tố cho metadata mà chúng ta ko thể nói về tất cả, nhưng ở đây là 1 vài tác dụng:
+- Thông tin về tác giả của tác phẩm.
+- Kích thước hình ảnh hoặc thời gian âm thanh
+- Tài liệu tham khảo chính, số tài khoản, số hóa đơn, ID giao dịch
+- Nguồn gốc dữ liệu trong file
+- Ngôn ngữ của nội dung
+Swift thi hành 1 số giới hạn về kích thước metadata (các giới hạn này được đưa ra trong các thông tin Swift cluster có sẵng tại URL/info). Metadata là thường nhỏ hơn r nhiều so với kích thước nội dung của object, vì vậy ta ko mong đợi để lưu trữ megabite thông tin về siêu dữ liệu, tuy nhiên, lưu trữ 1 só loại metadata được lựa chọn cẩn thận có thể cung cấp hệ thống của bạn sự linh hoạt đáng ngạc nhiện, tối ưu hóa hiệu suất giảm thiểu lưu lượng hoặc cung cấp 1 trải nghiệm ng dùng tốt hơn
