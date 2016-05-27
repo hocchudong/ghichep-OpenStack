@@ -4,7 +4,31 @@
 - Có 2 cách sử dụng volume: (http://prntscr.com/b8a9l7)
  - Sử dụng để gắn vào máy ảo đã được tạo trước đó: `bootable =  false`
  - Sử dụng để boot máy ảo: `bootable =  true`
-- Khi tạo volume (chưa gắn vào máy nào) thì tại thư mục `/var/lib/cinder/volume` chưa xuất hiện volume. Khi thực hiện gắn (attach) vào VM nào đó thì mới có volume tại thư mục trên. Khi gỡ volume thì file đó sẽ biến mất trên node cinder
+- File chứa trong thư mục `/var/lib/cinder/volumes` các các file quản lý volume được tạo ra, trong đó có đường dẫn tới volume.
+```
+root@cinder:/var/lib/cinder/volumes# cat volume-aa2f2db8-c93b-41ca-9119-d74310caa995
+
+<target iqn.2010-10.org.openstack:volume-aa2f2db8-c93b-41ca-9119-d74310caa995>
+    backing-store /dev/cinder-volumes/volume-aa2f2db8-c93b-41ca-9119-d74310caa995
+    driver iscsi
+    incominguser j5GJW8rYpq5cmd263oXE JCYsTBXrX26ium4F
+
+    write-cache on
+</target>
+```
+
+- Kiểm tra các volume trên LVM bằng lệnh: http://prntscr.com/b8xoz4
+```sh
+lvs
+
+hoặc 
+
+lsbkl
+
+
+```
+
+- Volume được tạo trên LVM KHÔNG sử dụng cơ chế `thin` để cấp phát dung lượng lưu trữ (tạo bao nhiêu cấp bấy nhiêu.)
 
 - Nếu tách máy Cinder thành 1 node (Cinder node) khác và không sử dụng backend thì mặc định volume được tạo ra sẽ lưu tại node cinder.
 
