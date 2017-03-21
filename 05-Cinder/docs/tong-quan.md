@@ -53,7 +53,7 @@ volume_driver = cinder.volume.drivers.lvm.LVMISCSIDriver
 
 `Cinder Attach Flow` 
 
-![cinder-attach-flow](/images/cinder-attach-flow.png)
+![cinder-attach-flow](/05-Cinder/images/cinder-attach-flow.png)
 
 - Cinder gọi Cinder qua APi của cinder, truyền thông tin kết nối.
   - Ví vụ :  Host name, iSCSI initiator name, FC WWPNs
