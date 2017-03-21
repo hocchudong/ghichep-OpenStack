@@ -97,10 +97,8 @@ volume_driver = cinder.volume.drivers.lvm.LVMISCSIDriver
 ### 7. Advanced Features.
 
 - Snapshot :
- <ul>
-  <li>Một snapshot là một bản sao của một thời điểm của dữ liệu chứa một volume.</li>
-  <li>Một snapshot sẽ cùng tồn tại trên storage backend như một volume đang hoạt động.</li>
- </ul>
+  - Một snapshot là một bản sao của một thời điểm của dữ liệu chứa một volume.
+  - Một snapshot sẽ cùng tồn tại trên storage backend như một volume đang hoạt động.
 - Quota :
   - Admin sẽ đặt giới hạn cho volume, khả năng backup và snapshot tùy thuộc vào chính sách cài đặt.
 - Volume transfer :
@@ -111,6 +109,6 @@ volume_driver = cinder.volume.drivers.lvm.LVMISCSIDriver
   - Chuyển dữ liệu từ back-end hiện tại của volume đến một nơi mới.
   - Hai luồng chính phụ thuộc vào việc volume có được gắn vào hay không.
 
-#Tham khảo.
+# Tham khảo.
 
 - 2 file đính kèm trong thư mục.
