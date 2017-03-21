@@ -1,0 +1,1 @@
+# Ghi chép Cinder.
