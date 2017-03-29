@@ -19,24 +19,99 @@
 
 ### 1.1. Mô hình.
 
+![mohinh](/images/cinder/mohinh.png)
+
+- Cấu hình các máy :
+
 ```sh
-|
-|
-|
-|                                             |-------- Node Compute (10.10.10.20 - U14.04)
-|                                             |
-|----- Node Controller (10.10.10.10 - U14.04) |
-|                    |                        |
-|             _______|________                |-------- Node Cinder (10.10.10.130 - U14.04)
-|            |Nova-api         |                                    |
-|            |Cinder-api       |                            ________|_______
-|            |Cinder-scheduler |                           |lvm             |
-|            ------------------                            |tgt             |
-|                                                          |cinder-volume   |
-|                                                          ------------------
+- Gồm 3 máy chủ là : controller , compute và cinder.
+- OS : Ubuntu server 14.04 64-bit.
+- RAM : controller (4GB), compute (2GB), cinder (1GB).
+- Máy gồm 2 NICs :
+-- eth0 : sử dụng chế độ card NAT dùng để tải các gói cài đặt từ Internet.
+-- eth1 : Sử dụng để quản trị các node trong mô hình OpenStack (dùng chế độ hostonly - vmnet1 của VMware).
+- Thiết lập về ổ cứng :
+-- controller : 1 HDD +20GB, 1 HDD + 40GB
+-- compute : 1 HDD +20GB, 1 HDD + 80GB
+-- cinder : 2 HDD (1 HDD 20GB + 1 HDD 100GB)
+```
+
+### Phân hoạch địa chỉ IP và yêu cầu phần cứng đối với máy chủ:
+
+![table-phanhoach](table-phanhoach.png)
+
+### Trên Node compute thiết lập điah chỉ IP và hostname
+
+- Dùng trình soạn thảo `vi` để mở file cấu hình interface network tiến hành thiết lập IP cho node Cinder :
+
+```sh
+vi /etc/network/interfaces
+```
+
+- Sửa lại file cấu hình như sau :
+
+```sh
+auto lo
+iface lo inet loopback
+
+# EXT NETWORK
+auto eth0
+iface eth0 inet static
+address 172.16.1.130
+netmask 255.255.255.0
+gateway 172.16.1.1
+dns-nameservers 8.8.8.8
+
+# MGNT NETWORK
+auto eth1
+iface eth1 inet static
+address 10.10.10.130
+netmask 255.255.255.0
+
+```
+
+- Lưu lại file cấu hình và tiến hành yêu cầu phát phát lại địa chỉ IP :
+
+```sh
+ifdown -a && ifup -a
+```
+
+- Thiết lập file hosts :
+
+```sh
+vi /etc/hosts
+```
+
+- Sau đó chỉnh sửa lại file cấu hình như sau :
+
+```sh
+127.0.0.1       localhost cinder
+10.10.10.10    controller
+10.10.10.20   compute1
+10.10.10.130 cinder
+```
+
+- Chỉnh sửa file hostname :
+
+```sh
+vi /etc/hostname
+```
+
+- Sửa lại file cấu hình thành :
+
+```sh
+cinder
+```
+
+- Reboot lại máy chủ để lấy cấu hình mới :
+
+```sh
+init 6
 ```
 
 ### 1.2. Cài đặt.
+
+- Ở đây mình chỉ tiến hành cài node Cinder, mặc định là OpenStack đã có và chúng ta chỉ cài thêm dịch vụ lưu trữ Block Storage (Cinder) , nếu chưa có OpenStack có thể xem tại [đây](https://github.com/congto/OpenStack-Mitaka-Scripts/tree/master/OPS-Mitaka-LB-Ubuntu/scripts) để đồng bộ với mô hình cài node cinder .
 
 ### Trên Node Controller :
 
