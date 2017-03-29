@@ -1,5 +1,20 @@
 # Cài đặt CInder , tạo volume và launch instane bằng volume đó.
 
+====
+
+#   MỤC LỤC.
+
+[1. Cài đặt Cinder.](#caidat)
+
+[2. Tạo volume và launch instane.](#instane)
+
+[3. Process Structure.](#process)
+
+
+===
+
+
+<a name="caidat"></a>
 ## 1. Cài đặt Cinder trên một node riêng.
 
 ### 1.1. Mô hình.
@@ -466,7 +481,7 @@ service tgt restart
 service cinder-volume restart
 ```
 
-
+<a name="instane"></a>
 ## 2. Tạo volume và launch instane :
 
 - Kiểm tra các dịch vụ để kết nối với nhau thành công hay chưa :
@@ -519,15 +534,18 @@ service cinder-volume restart
 
 ![vm](/images/cinder/vm.png)
 
+
+<a name="process"></a>
 ## 3. Process Structure.
 
 - Chúng ta có 4 quy trình tạo nên Cinder Service :
- <ul>
-  <li>Cinder-api : là một ứng dụng WSGI chấp nhận và xác nhận các yêu cầu REST (JSON hoặc XML) từ client và chuyển chúng tới các quy trình CInder khác nếu thích hợp với AMQP</li>
-  <li>Cinder-scheduler : Chương trình lập lịch các định back-end nào sẽ là điểm đến cho một yêu cầu tạo ra volume hoặc chuyển yêu cầu đó. Nó duy trì trạng thái không liên tục cho các back-end (Ví dụ : khả năng sẵn có , khả năng và các thông số kỹ thuật được hỗ trợ) có thể được tận dụng khi đưa ra các quyết định về vị trí . Thuật toán được sử dụng bởi chương trình lên lịch có thể được thay đổi thông qua cấu hình Cinder.</li>
-  <li>Cinder-volume : Cinder-volume chấp nhận các yêu cầu từ các quy trình CInder khác đóng vai trò là thùng chứa hoạt động cho các trình điều khiển Cinder. Quá trình này là đa luồng và thường có một luồng thực hiện trên mỗi Cinder back-end giống như định nghĩa trong tập tin cấu hình Cinder.</li>
-  <li>Cinder-backup : Xử lý tương tác với các mục tiêu sao có khả năng sao lưu (Ví dụ như OpenStack Object Storage Service - Swift). Khi một máy client yêu cầu sao lưu volume được tạo ra hoặc quản lý.</li>
- </ul>
+
+|Process|mô tả|
+|---------|-----|
+|Cinder-api|là một ứng dụng WSGI chấp nhận và xác nhận các yêu cầu REST (JSON hoặc XML) từ client và chuyển chúng tới các quy trình CInder khác nếu thích hợp với AMQP|
+|Cinder-scheduler|Chương trình lập lịch các định back-end nào sẽ là điểm đến cho một yêu cầu tạo ra volume hoặc chuyển yêu cầu đó. Nó duy trì trạng thái không liên tục cho các back-end (Ví dụ : khả năng sẵn có , khả năng và các thông số kỹ thuật được hỗ trợ) có thể được tận dụng khi đưa ra các quyết định về vị trí . Thuật toán được sử dụng bởi chương trình lên lịch có thể được thay đổi thông qua cấu hình Cinder|
+|Cinder-volume|Cinder-volume chấp nhận các yêu cầu từ các quy trình CInder khác đóng vai trò là thùng chứa hoạt động cho các trình điều khiển Cinder. Quá trình này là đa luồng và thường có một luồng thực hiện trên mỗi Cinder back-end giống như định nghĩa trong tập tin cấu hình Cinder.|
+|Cinder-backup|Xử lý tương tác với các mục tiêu sao có khả năng sao lưu (Ví dụ như OpenStack Object Storage Service - Swift). Khi một máy client yêu cầu sao lưu volume được tạo ra hoặc quản lý.|
 
 
 ### Cinder Processes Concept Diagram:
@@ -547,3 +565,23 @@ Hình bên trên mô tả quy trình tạo Volume , tiếp theo chúng ta cùng 
 7. Cinder-volume thực hiện quá trình thu thập dữ liệu và metadata volume và thông tin kết nối để trả lại thông báo đến AMQP.
 8. Cinder-api thực hiện quá trình đọc message phản hồi từ hàng đợi và đáp ứng tới client.
 9. Client nhận được thông tin bao gồm trạng thái của yêu cầu tạo, Volume UUID, ....
+
+
+### Cinder & Nova Workflow - Volume Attach
+
+![cinder-nova-workflow](/images/cinder/cinder-nova-workflow.png)
+
+1. Client yêu cầu attach volume thông qua Nova REST API (Client có thể sử dụng tiện ích CLI của python-novaclient)
+2. Nova-api thực hiện quá trình xác nhận yêu cầu và thông tin người dùng. Một khi đã được xác thực, gọi API Cinder để có được thông tin kết nối cho volume được xác định.
+3. Cinder-api thực hiện quá trình xác nhận yêu cầu hợp lệ và thông tin người dùng hợp lệ . Một khi được xác nhận , một message sẽ được gửi đến người quản lý volume thông qua AMQP.
+4. Cinder-volume tiến hành đọc message từ hàng đợi , gọi Cinder driver tương ứng với volume được gắn vào.
+5. NetApp Cinder driver chuẩn bị Cinder Volume chuẩn bị cho việc attach (các bước cụ thể phụ thuộc vào giao thức lưu trữ được sử dụng).
+6. Cinder-volume thưc hiện gửi thông tin phản hồi đến cinder-api thông qua hàng đợi AMQP.
+7. Cinder-api thực hiện quá trình đọc message phản hồi từ cinder-volume từ hàng đợi; Truyền thông tin kết nối đến RESTful phản hồi gọi tới NOVA.
+8. Nova tạo ra kết nối với bộ lưu trữ thông tin được trả về Cinder.
+9. Nova truyền volume device/file tới hypervisor , sau đó gắn volume device/file vào máy ảo client như một block device thực thế hoặc ảo hóa (phụ thuộc vào giao thức lưu trữ).
+
+# Tham Khảo :
+
+- https://docs.openstack.org/mitaka/install-guide-ubuntu/cinder-storage-install.html
+- http://netapp.github.io/openstack-deploy-ops-guide/icehouse/content/section_cinder-processes.html
