@@ -38,7 +38,7 @@
 
 ### Phân hoạch địa chỉ IP và yêu cầu phần cứng đối với máy chủ:
 
-![table-phanhoach](table-phanhoach.png)
+![table-phanhoach](/images/cinder/table-phanhoach.png)
 
 ### Trên Node compute thiết lập điah chỉ IP và hostname
 
