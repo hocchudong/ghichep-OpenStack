@@ -19,24 +19,84 @@
 
 ### 1.1. Mô hình.
 
+![mohinh](/images/cinder/mohinh.png)
+
+### Phân hoạch địa chỉ IP và yêu cầu phần cứng đối với máy chủ:
+
+![table-phanhoach](/images/cinder/mohinh-re.png)
+
+### Trên Node compute thiết lập điah chỉ IP và hostname
+
+- Dùng trình soạn thảo `vi` để mở file cấu hình interface network tiến hành thiết lập IP cho node Cinder :
+
 ```sh
-|
-|
-|
-|                                             |-------- Node Compute (10.10.10.20 - U14.04)
-|                                             |
-|----- Node Controller (10.10.10.10 - U14.04) |
-|                    |                        |
-|             _______|________                |-------- Node Cinder (10.10.10.130 - U14.04)
-|            |Nova-api         |                                    |
-|            |Cinder-api       |                            ________|_______
-|            |Cinder-scheduler |                           |lvm             |
-|            ------------------                            |tgt             |
-|                                                          |cinder-volume   |
-|                                                          ------------------
+vi /etc/network/interfaces
+```
+
+- Sửa lại file cấu hình như sau :
+
+```sh
+auto lo
+iface lo inet loopback
+
+# EXT NETWORK
+auto eth0
+iface eth0 inet static
+address 172.16.1.130
+netmask 255.255.255.0
+gateway 172.16.1.1
+dns-nameservers 8.8.8.8
+
+# MGNT NETWORK
+auto eth1
+iface eth1 inet static
+address 10.10.10.130
+netmask 255.255.255.0
+
+```
+
+- Lưu lại file cấu hình và tiến hành yêu cầu phát phát lại địa chỉ IP :
+
+```sh
+ifdown -a && ifup -a
+```
+
+- Thiết lập file hosts :
+
+```sh
+vi /etc/hosts
+```
+
+- Sau đó chỉnh sửa lại file cấu hình như sau :
+
+```sh
+127.0.0.1       localhost cinder
+10.10.10.10    controller
+10.10.10.20   compute1
+10.10.10.130 cinder
+```
+
+- Chỉnh sửa file hostname :
+
+```sh
+vi /etc/hostname
+```
+
+- Sửa lại file cấu hình thành :
+
+```sh
+cinder
+```
+
+- Reboot lại máy chủ để lấy cấu hình mới :
+
+```sh
+init 6
 ```
 
 ### 1.2. Cài đặt.
+
+- Ở đây mình chỉ tiến hành cài node Cinder, mặc định là OpenStack đã có và chúng ta chỉ cài thêm dịch vụ lưu trữ Block Storage (Cinder) , nếu chưa có OpenStack có thể xem tại [đây](https://github.com/congto/OpenStack-Mitaka-Scripts/tree/master/OPS-Mitaka-LB-Ubuntu/scripts) để đồng bộ với mô hình cài node cinder .
 
 ### Trên Node Controller :
 
