@@ -21,24 +21,9 @@
 
 ![mohinh](/images/cinder/mohinh.png)
 
-- Cấu hình các máy :
-
-```sh
-- Gồm 3 máy chủ là : controller , compute và cinder.
-- OS : Ubuntu server 14.04 64-bit.
-- RAM : controller (4GB), compute (2GB), cinder (1GB).
-- Máy gồm 2 NICs :
--- eth0 : sử dụng chế độ card NAT dùng để tải các gói cài đặt từ Internet.
--- eth1 : Sử dụng để quản trị các node trong mô hình OpenStack (dùng chế độ hostonly - vmnet1 của VMware).
-- Thiết lập về ổ cứng :
--- controller : 1 HDD +20GB, 1 HDD + 40GB
--- compute : 1 HDD +20GB, 1 HDD + 80GB
--- cinder : 2 HDD (1 HDD 20GB + 1 HDD 100GB)
-```
-
 ### Phân hoạch địa chỉ IP và yêu cầu phần cứng đối với máy chủ:
 
-![table-phanhoach](/images/cinder/table-phanhoach.png)
+![table-phanhoach](/images/cinder/mohinh-re.png)
 
 ### Trên Node compute thiết lập điah chỉ IP và hostname
 
