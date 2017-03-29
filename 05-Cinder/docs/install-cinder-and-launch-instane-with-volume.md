@@ -19,6 +19,23 @@
 
 ### 1.1. Mô hình.
 
+```sh
+|
+|
+|
+|                                             |-------- Node Compute (10.10.10.20 - U14.04)
+|                                             |
+|----- Node Controller (10.10.10.10 - U14.04) |
+|                    |                        |
+|             _______|________                |-------- Node Cinder (10.10.10.130 - U14.04)
+|            |Nova-api         |                                    |
+|            |Cinder-api       |                            ________|_______
+|            |Cinder-scheduler |                           |lvm             |
+|            ------------------                            |tgt             |
+|                                                          |cinder-volume   |
+|                                                          ------------------
+```
+
 ### 1.2. Cài đặt.
 
 ### Trên Node Controller :
