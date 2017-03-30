@@ -1,9 +1,12 @@
 # Các ghi chép về cinder
 
 ## Các chú ý về volume
-- Có 2 cách sử dụng volume: (http://prntscr.com/b8a9l7)
+- Có 2 cách sử dụng volume: 
  - Sử dụng để gắn vào máy ảo đã được tạo trước đó: `bootable =  false`
  - Sử dụng để boot máy ảo: `bootable =  true`
+
+![bootable](/images/cinder/bootable.png)
+
 - File chứa trong thư mục `/var/lib/cinder/volumes` các các file quản lý volume được tạo ra, trong đó có đường dẫn tới volume.
 ```
 root@cinder:/var/lib/cinder/volumes# cat volume-aa2f2db8-c93b-41ca-9119-d74310caa995
@@ -17,7 +20,7 @@ root@cinder:/var/lib/cinder/volumes# cat volume-aa2f2db8-c93b-41ca-9119-d74310ca
 </target>
 ```
 
-- Kiểm tra các volume trên LVM bằng lệnh: http://prntscr.com/b8xoz4
+- Kiểm tra các volume trên LVM bằng lệnh: 
 ```sh
 lvs
 
@@ -25,14 +28,17 @@ hoặc
 
 lsbkl
 
-
 ```
+
+![lsblk](/images/cinder/lsblk.png)
 
 - Volume được tạo trên LVM KHÔNG sử dụng cơ chế `thin` để cấp phát dung lượng lưu trữ (tạo bao nhiêu cấp bấy nhiêu.)
 
 - Nếu tách máy Cinder thành 1 node (Cinder node) khác và không sử dụng backend thì mặc định volume được tạo ra sẽ lưu tại node cinder.
 
-- Nếu boot máy ảo từ volume, file máy ảo sẽ nằm trên node Cinder. Node compute sẽ mount tới node cinder thông qua iscsi: http://prntscr.com/b8a7b3
+- Nếu boot máy ảo từ volume, file máy ảo sẽ nằm trên node Cinder. Node compute sẽ mount tới node cinder thông qua iscsi:
+
+![img](/images/cinder/img.png)
 
 ## Các lệnh về volume
 
@@ -56,10 +62,14 @@ openstack volume create --size kich_thuoc ten_volume
 openstack volume create --size 1  volume01 
 ```
 
+![create-volume-1](/images/cinder/create-volume-1.png)
+
 - Kiểm tra danh sách các volume
 ```sh
 openstack volume list
 ```
+
+![volume-list](/images/cinder/volume-list.png)
 
 - Gắn volume và gỡ volume khỏi máy ảo
 ```sh
