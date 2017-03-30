@@ -30,7 +30,7 @@ lsbkl
 
 ```
 
-![lsblk](/images/cinder/lsblk.png)
+![lsblk](/images/cinder/lsbsk.png)
 
 - Volume được tạo trên LVM KHÔNG sử dụng cơ chế `thin` để cấp phát dung lượng lưu trữ (tạo bao nhiêu cấp bấy nhiêu.)
 
