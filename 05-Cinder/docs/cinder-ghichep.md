@@ -73,8 +73,8 @@ openstack volume list
 
 ![volume-list](/images/cinder/volume-list.png)
 
-- Gắn volume và gỡ volume khỏi máy ảo
-```sh
+`Gắn volume và gỡ volume khỏi máy ảo`
+
 # Cú pháp lệnh gắn volume
 openstack server add volume INSTANCE_ID VOLUME_ID
 
@@ -99,7 +99,6 @@ Thực hiện add volume vào instane và kiểm tra :
 
 ![add_volume](/images/cinder/add_volume.png)
 
-```
 
 ## Tạo Volume và launch instane từ volume đó :
 
