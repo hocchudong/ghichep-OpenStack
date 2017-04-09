@@ -12,6 +12,9 @@
 
 ## II. Cài đặt.
 
+- Với mô hình trên LVM đã được cài đặt và thiết lập trước đó, ở bài này chỉ giới thiệu về glusterfs và nfs.
+- Xem chi tiết thiết lập Cinder và LVM tại [đây](https://github.com/hocchudong/ghichep-OpenStack/blob/master/05-Cinder/docs/cinder-install.md)
+
 ### 1. Trên node Cinder.
 
 - Cài đặt các gói `nfs-common` và `glusterfs-client` :
@@ -221,3 +224,7 @@ df -h
 ```
 
 ![gfs-mount](/images/cinder/gfs-mount.png)
+
+### 5. Cài đặt NFS 
+
+- UPDATING .........
