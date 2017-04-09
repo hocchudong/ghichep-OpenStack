@@ -20,6 +20,8 @@ root@cinder:/var/lib/cinder/volumes# cat volume-aa2f2db8-c93b-41ca-9119-d74310ca
 </target>
 ```
 
+## I. Các lệnh thường dùng.
+
 - Kiểm tra các volume trên LVM bằng lệnh: 
 ```sh
 lvs
@@ -74,22 +76,122 @@ openstack volume list
 - Gắn volume và gỡ volume khỏi máy ảo
 ```sh
 # Cú pháp lệnh gắn volume
-openstack server add volume INSTANCE_NAME VOLUME_NAME
+openstack server add volume INSTANCE_ID VOLUME_ID
 
 # Cú pháp lệnh gỡ volume
-openstack server remove volume INSTANCE_NAME VOLUME_NAME
+openstack server remove volume INSTANCE_ID VOLUME_ID
 
 # Trong đó: 
- - INSTANCE_NAME: Tên máy ảo
- - VOLUME_NAME: Tên volume
+ - INSTANCE_ID: ID của máy ảo (lấy id của máy ảo trên node compute với lệnh "openstack server list")
+ - VOLUME_NAME: ID của volume (sử dụng lệnh openstack volume list để lấy id của volume)
 
 # Ví dụ:
-openstack server add volume vm01 volume01 # Gắn vào máy ảo
 
- openstack server remove volume vm99999000 vol01-demo # Gỡ ra khỏi máy ảo.
+Lấy ID instane :
+
+![instane_id](/images/cinder/instane_id.png)
+
+Lấy id volume :
+
+![volume_id](/images/cinder/volume_id.png)
+
+Thực hiện add volume vào instane và kiểm tra :
+
+![add_volume](/images/cinder/add_volume.png)
+
 ```
 
-## Process Structure.
+## Tạo Volume và launch instane từ volume đó :
+
+### Tạo volume để launch instane :
+
+- Lấy ID của image (vì chúng ta tạo volume có source image dùng để launch instane) :
+
+```sh
+openstack image list
+```
+
+![image_list](/images/cinder/image_list.png)
+
+- Tại volume có source image :
+
+```sh
+openstack volume create --image acc8392e-e360-4c31-92e1-9115f2d04c33 \
+> --size 1 --availability-zone nova volume-test-1
+```
+
+Các giá trị :
+
+|Giá trị|ý nghĩa|
+|-------|-------|
+|openstack volume create|Câu lệnh dùng để tạo volume mới|
+|--image acc8392e-e360-4c31-92e1-9115f2d04c33|Đây là option nguồn là image với id phía sau : acc8392e-e360-4c31-92e1-9115f2d04c33|
+| --size 1|Kích thước volume muốn tạo , ở đây là 1 GiB|
+|--availability-zone nova|Đây là zone, thường là nova|
+|volume-test-1|Tên của volume mới mà chúng ta muốn tạo|
+
+- Sau khi tạo xong volume chúng ta sẽ nhận được kết quả trả về như sau :
+
+![volume_create_succ](/images/cinder/volume_create_succ.png)
+
+- Tiếp theo chúng ta tiến hành launch instane từ volume mới tạo này :
+
+Thực hiện lấy danh sách các flavor :
+
+```sh
+openstack flavor list
+```
+
+![flavor_list](/images/cinder/flavor_list.png)
+
+Thực hiện lấy danh sách các network :
+
+```sh
+openstack network list
+```
+
+![network_list](/images/cinder/network_list.png)
+
+Lấy danh sách volume :
+
+```sh
+openstack volume list
+```
+
+![volume_list_instane](/images/cinder/volume_list_instane.png)
+
+Sử dụng lệnh sau để tạo mới 1 instane :
+
+```sh
+ openstack server create --flavor 1 --volume 663fb70d-31b7-4b62-86e6-d263b2d808f4 \
+  --nic net-id=4c711790-7cfc-42ab-8704-88d72680531a --security-group default vm4
+```
+
+ý nghĩa các giá trị :
+
+|Lệnh/Tùy chọn|Ý nghĩa|
+|-------------|-------|
+|openstack server create|Lệnh để tạo mới một instane|
+|--flavor 1|Tùy chọn flavor : chọn flavor có id là 1|
+|--volume 663fb70d-31b7-4b62-86e6-d263b2d808f4|Tùy chọn volume, thực hiện launch instane với nguồn từ volume , volume đó có id là 663fb70d-31b7-4b62-86e6-d263b2d808f4|
+|--nic net-id=4c711790-7cfc-42ab-8704-88d72680531a|Tùy chọn card mạng , với id của card mạng đó|
+|--security-group default|Đặt sercurity group là default|
+|vm4|Là tên của instane mà chúng ta muốn tạo|
+
+Sau khi thực hiện lệnh trên với các tùy chọn đều thỏa mãn chúng ta sẽ thu được kết quả như sau :
+
+![launch_instane_volume](/images/cinder/launch_instane_volume.png)
+
+- Trên node compute chúng ta thực hiện kiểm tra xem instane đã được tạo thành công hay chưa :
+
+```sh
+openstack server list
+```
+
+![server_list_succ](/images/cinder/server_list_succ.png)
+
+
+## II. Process Structure.
 
 - Chúng ta có 4 quy trình tạo nên Cinder Service :
 
@@ -101,7 +203,7 @@ openstack server add volume vm01 volume01 # Gắn vào máy ảo
 |Cinder-backup|Xử lý tương tác với các mục tiêu sao có khả năng sao lưu (Ví dụ như OpenStack Object Storage Service - Swift). Khi một máy client yêu cầu sao lưu volume được tạo ra hoặc quản lý.|
 
 
-### Cinder Processes Concept Diagram:
+## Cinder Processes Concept Diagram:
 
 ![cinder-process-diagram](/images/cinder/cinder-process-diagram.png)
 
