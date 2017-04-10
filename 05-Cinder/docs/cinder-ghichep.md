@@ -28,7 +28,7 @@ lvs
 
 hoặc 
 
-lsbkl
+lsblk
 
 ```
 
@@ -112,7 +112,7 @@ openstack image list
 
 ![image_list](/images/cinder/image_list.png)
 
-- Tại volume có source image :
+- Tạo volume có source image :
 
 ```sh
 openstack volume create --image acc8392e-e360-4c31-92e1-9115f2d04c33 \
@@ -234,3 +234,7 @@ Hình bên trên mô tả quy trình tạo Volume , tiếp theo chúng ta cùng 
 7. Cinder-api thực hiện quá trình đọc message phản hồi từ cinder-volume từ hàng đợi; Truyền thông tin kết nối đến RESTful phản hồi gọi tới NOVA.
 8. Nova tạo ra kết nối với bộ lưu trữ thông tin được trả về Cinder.
 9. Nova truyền volume device/file tới hypervisor , sau đó gắn volume device/file vào máy ảo client như một block device thực thế hoặc ảo hóa (phụ thuộc vào giao thức lưu trữ).
+
+## Tham Khảo :
+
+- http://netapp.github.io/openstack-deploy-ops-guide/icehouse/content/section_cinder-processes.html
