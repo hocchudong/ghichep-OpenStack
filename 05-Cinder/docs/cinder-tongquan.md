@@ -111,4 +111,4 @@ volume_driver = cinder.volume.drivers.lvm.LVMISCSIDriver
 
 # Tham khảo.
 
-- 2 file đính kèm trong thư mục.
+- 2 file đính kèm trong thư mục [ref](https://github.com/datkk06/ghichep-OpenStack/tree/master/05-Cinder/ref).
