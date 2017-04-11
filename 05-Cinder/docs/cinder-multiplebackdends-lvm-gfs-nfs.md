@@ -68,7 +68,9 @@ Thêm vào nội dung :
 ```sh
 # create new : specify GlusterFS volumes
 
-10.10.10.50:/datapoint
+10.10.10.50:/testvol2
+
+# testvol2 là trên của volume mà chúng ta sẽ tạo tạo GFS server.
 ```
 
 - Dùng trình soạn thảo `vi` mở file `/etc/cinder/nfs_shares` :
@@ -118,7 +120,7 @@ volume_api_class = nova.volume.cinder.API
 initctl restart nova-compute 
 ```
 
-### 3. Trên Node gf1 và gf2 (thực hiện tương tự) :
+### 3. Trên Node gfs1 và gfs2 (thực hiện tương tự) :
 
 - Dùng trình soạn thảo `vi` để mở file hosts :
 
@@ -145,37 +147,70 @@ vi /etc/hosts
 init 6
 ```
 
+- Thực hiện phân vùng ổ cứng :
+
+```sh
+fdisk /dev/sdb
+```
+
+![phanvung-gfs](/images/cinder/phanvung-gfs.png)
+
+- Tải gói định dạng xfs :
+
+```sh
+apt-get install xfsprogs -y
+```
+
+- Format phân vùng vừa tạo với định djang xfs :
+
+```sh
+mkfs.xfs /dev/sdb1
+```
+
+- Mount partition vào thư mục /mnt và tạo thư mục /mnt/brick1
+
+```sh
+mount /dev/sdb1 /mnt && mkdir -p /mnt/brick1
+```
+
+- Khai báo vào file cấu hình /etc/fstab để khi restart server, hệ thống sẽ tự động mount vào thư mục:
+
+```sh
+echo "/dev/sdb1 /mnt xfs defaults 0 0" >> /etc/fstab
+```
+
 - Cài đặt gói `glusterfs-server`
 
 ```sh
 apt-get install glusterfs-server
 ```
 
-- Trên cả 2 node kiểm tra xem 2 node này đã được kết nối với nhau hay chưa :
+### Tiếp tục thực hiện trên gfs2
+
+-  Tạo 1 pool storage với Server gfs1:
 
 ```sh
 gluster peer probe gfs1
-gluster peer probe gfs2
+```
+
+- Kiểm tra trạng thái của gluster pool
+
+```sh
 gluster peer status
 ```
 
-- Tạo thư mục trên cả 2 node , dùng để mount dữ liệu :
-
-```sh
-mkdir -p /mnt/gluster
-```
 
 - Khởi tạo volume :
 
 ```sh
-gluster  volume create datapoint replica 2 transport tcp  gluster1:/mnt/gluster  gluster2:/mnt/gluster force
+gluster  volume create testvol2 replica 2 transport tcp  gfs1:/mnt/brick1  gfs2:/mnt/brick1
 ```
 
 - Start volume :
 
 
 ```sh
-gluster volume start datapoint
+gluster volume start testvol2
 ```
 
 ### 4. Trên node gfs-client.
@@ -214,7 +249,7 @@ glusterfs-client
 - Thực hiện mount từ thư mục tạo trên gfs server :
 
 ```sh
-mount -t glusterfs 10.10.10.50:/datapoint /mnt 
+mount -t glusterfs 10.10.10.50:/testvol2 /mnt 
 ```
 
 - Kiểm tra :
@@ -228,3 +263,34 @@ df -h
 ### 5. Cài đặt NFS 
 
 - UPDATING .........
+
+
+## II. Kiểm thử.
+
+### Trên node controller , chúng ta thực hiện cấu hình backends :
+
+- Tạo volume-type cho glusterfs :
+
+```sh
+cinder type-create glusterfs
+```
+
+- Kiểm tra cinder type-list :
+
+![cinder-type-list](/images/cinder/cinder-type-list.png)
+
+- Tạo một volume có backends gfs để thử nghiệm :
+
+```sh
+cinder create --display_name disk01 10 --volume-type glusterfs
+```
+
+![create-volume-gfs](/images/cinder/create-volume-gfs.png)
+
+- Kiểm tra tình trạng của volume :
+
+```sh
+cinder list
+```
+
+![kiemtra-gfs](/images/cinder/kiemtra-gfs.png)

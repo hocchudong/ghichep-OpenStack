@@ -22,7 +22,7 @@
 
 ![table-phanhoach](/images/cinder/mohinh-re.png)
 
-### Trên Node compute thiết lập điah chỉ IP và hostname
+### Trên Node Cinder thiết lập điah chỉ IP và hostname
 
 - Dùng trình soạn thảo `vi` để mở file cấu hình interface network tiến hành thiết lập IP cho node Cinder :
 
