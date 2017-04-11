@@ -1,4 +1,4 @@
-#Tìm hiểu về GlusterFS.
+# Tìm hiểu về GlusterFS.
 
 ## 1. Tổng quan về GlusterFS.
 
