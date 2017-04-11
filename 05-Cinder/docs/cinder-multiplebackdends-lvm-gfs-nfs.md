@@ -161,7 +161,7 @@ fdisk /dev/sdb
 apt-get install xfsprogs -y
 ```
 
-- Format phân vùng vừa tạo với định djang xfs :
+- Format phân vùng vừa tạo với định dạng xfs :
 
 ```sh
 mkfs.xfs /dev/sdb1
@@ -262,7 +262,150 @@ df -h
 
 ### 5. Cài đặt NFS 
 
-- UPDATING .........
+#### 5.1. Cài đặt trên node nfs.
+
+- Update các gói cài đặt :
+
+```sh
+apt-get update
+```
+
+- Chỉnh sửa file hosts:
+
+```sh
+127.0.0.1       localhost nfs
+10.10.10.10    controller
+10.10.10.20   compute1
+10.10.10.130    cinder
+10.10.10.50     gfs1
+10.10.10.60     gfs2
+10.10.10.40     nfs
+10.10.10.30     gfs-client
+10.10.10.41     nfs-client
+
+```
+
+- Reeboot lại máy chủ để lấy cấu hình mới nhất :
+
+```sh
+init 6
+```
+
+- Phân vùng ở cứng :
+
+```sh
+fdisk /dev/sdb
+```
+
+![phanvung-gfs](/images/cinder/phanvung-gfs.png)
+
+- Tải gói định dạng xfs :
+
+```sh
+apt-get install xfsprogs -y
+```
+
+- Format phân vùng vừa tạo với định dạng xfs :
+
+```sh
+mkfs.xfs /dev/sdb1
+```
+
+- Mount partition vào thư mục /mnt :
+
+```sh
+mount /dev/sdb1 /mnt
+```
+
+- Tạo thư mục /mnt/nfs :
+
+```sh
+mkdir -p /mnt/nfs
+```
+
+- Cài đặt gói `nfs-kernel-server` :
+
+```sh
+apt-get -y install nfs-kernel-server
+```
+
+- Thực hiện lệnh
+
+```sh
+echo "10.10.10.0/24 /mnt/nfs 10.10.10.0/24(rw,no_root_squash)" >> /ect/exports
+```
+
+Cho phép mount thư mục /mnt/nfs đến dải 10.10.10.0/24
+
+- Thực hiện lệnh :
+
+```sh
+echo "/dev/sdb1 /mnt xfs defaults 0 0" >> /etc/fstab
+```
+
+Để hệ thống tự động mount vào thư mục khi restart hệ thống.
+
+- Khởi động lại NFS :
+
+```sh
+/etc/init.d/nfs-kernel-server restart
+```
+
+#### 5.2. Cài đặt trên node nfs-client.
+
+- Update các gói cài đặt :
+
+```sh
+apt-get update
+```
+
+- Chỉnh sửa file hosts:
+
+```sh
+127.0.0.1       localhost nfs-client
+10.10.10.10    controller
+10.10.10.20   compute1
+10.10.10.130    cinder
+10.10.10.50     gfs1
+10.10.10.60     gfs2
+10.10.10.40     nfs
+10.10.10.30     gfs-client
+10.10.10.41     nfs-client
+
+```
+
+- Reeboot lại máy chủ để lấy cấu hình mới nhất :
+
+```sh
+init 6
+```
+
+- Cài đặt gói `nfs-common` :
+
+```sh
+apt-get -y install nfs-common
+```
+
+- Tạo thư mục `/mnt/a` để mount thư mục từ nfs server về :
+
+```sh
+mkdir -p /mnt/a
+```
+
+- Thực hiện mount thư mục `mnt/nfs` về thư mục `/mnt/a` :
+
+```sh
+mount 10.10.10.40:/mnt/nfs /mnt/a
+```
+
+- Kiểm tra :
+
+```sh
+df -h
+```
+
+![nfs-mount](/images/cinder/nfs-mount.png)
+
 
 
 ## II. Kiểm thử.
