@@ -82,7 +82,8 @@ vi /etc/cinder/nfs_shares
 Thêm vào nội dung :
 
 ```sh
-10.10.10.40:/storage 
+10.10.10.40:/nfsshare
+# /nfsshare là thư mục mà chúng ta sẽ share khi cấu hình NFS.
 ```
 
 - Thực hiện phân quyền và restart lại dịch vụ :
@@ -406,16 +407,35 @@ df -h
 
 ![nfs-mount](/images/cinder/nfs-mount.png)
 
+#### 5.3. Cài đặt trên node Cinder.
+
+- Thực hiện lệnh :
+
+```sh
+echo "/dev/sdb1 /mnt xfs defaults 0 0" >> /etc/fstab
+```
+
+Để hệ thống tự động mount vào thư mục khi restart hệ thống.
+
 
 
 ## II. Kiểm thử.
 
 ### Trên node controller , chúng ta thực hiện cấu hình backends :
 
+- Kiểm tra xem các backends đã kết nối được đến Cinder hay chưa :
+
+```sh
+cinder service-list
+```
+
+![service_list_test](/images/cinder/service_list_test.png)
+
 - Tạo volume-type cho glusterfs :
 
 ```sh
 cinder type-create glusterfs
+cinder type-create nfs
 ```
 
 - Kiểm tra cinder type-list :
@@ -437,3 +457,21 @@ cinder list
 ```
 
 ![kiemtra-gfs](/images/cinder/kiemtra-gfs.png)
+
+- Tạo một volume có backends nfs để thử nghiệm :
+
+```sh
+cinder create --display_name disk_nfs-2 --volume-type nfs 10
+```
+
+- Kiểm tra tình trạng của Volume :
+
+```sh
+cinder list
+```
+
+![cinder_test_nfs](/images/cinder/cinder_test_nfs.png)
+
+- Kiểm tra lại xem volume có được lưu trữ trên backends chỉ định hay không (thực hiện trên backends server ) :
+
+![check_backends](/images/cinder/check_backends.png)
