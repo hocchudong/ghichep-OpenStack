@@ -475,3 +475,7 @@ cinder list
 - Kiểm tra lại xem volume có được lưu trữ trên backends chỉ định hay không (thực hiện trên backends server ) :
 
 ![check_backends](/images/cinder/check_backends.png)
+
+# Tham Khảo :
+
+http://www.tecmint.com/how-to-setup-nfs-server-in-linux/

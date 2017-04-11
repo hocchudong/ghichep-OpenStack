@@ -1,0 +1,1 @@
+# Ghi chép các vấn đề tìm hiểu được về LVM, GlusterFS, NFS
