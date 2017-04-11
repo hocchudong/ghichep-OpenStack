@@ -352,7 +352,7 @@ echo "/dev/sdb1 /mnt xfs defaults 0 0" >> /etc/fstab
 /etc/init.d/nfs-kernel-server restart
 ```
 
-#### 5.2. Cài đặt trên node nfs-client.
+#### 5.2. Cài đặt trên node nfs-client (Chỉ mang mục đích thử nghiệm quá trình mount đã thành công hay chưa).
 
 - Update các gói cài đặt :
 
