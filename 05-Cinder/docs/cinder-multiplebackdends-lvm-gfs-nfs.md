@@ -68,7 +68,9 @@ Thêm vào nội dung :
 ```sh
 # create new : specify GlusterFS volumes
 
-10.10.10.50:/datapoint
+10.10.10.50:/testvol2
+
+# testvol2 là trên của volume mà chúng ta sẽ tạo tạo GFS server.
 ```
 
 - Dùng trình soạn thảo `vi` mở file `/etc/cinder/nfs_shares` :
@@ -80,7 +82,8 @@ vi /etc/cinder/nfs_shares
 Thêm vào nội dung :
 
 ```sh
-10.10.10.40:/storage 
+10.10.10.40:/nfsshare
+# /nfsshare là thư mục mà chúng ta sẽ share khi cấu hình NFS.
 ```
 
 - Thực hiện phân quyền và restart lại dịch vụ :
@@ -118,7 +121,7 @@ volume_api_class = nova.volume.cinder.API
 initctl restart nova-compute 
 ```
 
-### 3. Trên Node gf1 và gf2 (thực hiện tương tự) :
+### 3. Trên Node gfs1 và gfs2 (thực hiện tương tự) :
 
 - Dùng trình soạn thảo `vi` để mở file hosts :
 
@@ -145,37 +148,70 @@ vi /etc/hosts
 init 6
 ```
 
+- Thực hiện phân vùng ổ cứng :
+
+```sh
+fdisk /dev/sdb
+```
+
+![phanvung-gfs](/images/cinder/phanvung-gfs.png)
+
+- Tải gói định dạng xfs :
+
+```sh
+apt-get install xfsprogs -y
+```
+
+- Format phân vùng vừa tạo với định dạng xfs :
+
+```sh
+mkfs.xfs /dev/sdb1
+```
+
+- Mount partition vào thư mục /mnt và tạo thư mục /mnt/brick1
+
+```sh
+mount /dev/sdb1 /mnt && mkdir -p /mnt/brick1
+```
+
+- Khai báo vào file cấu hình /etc/fstab để khi restart server, hệ thống sẽ tự động mount vào thư mục:
+
+```sh
+echo "/dev/sdb1 /mnt xfs defaults 0 0" >> /etc/fstab
+```
+
 - Cài đặt gói `glusterfs-server`
 
 ```sh
 apt-get install glusterfs-server
 ```
 
-- Trên cả 2 node kiểm tra xem 2 node này đã được kết nối với nhau hay chưa :
+### Tiếp tục thực hiện trên gfs2
+
+-  Tạo 1 pool storage với Server gfs1:
 
 ```sh
 gluster peer probe gfs1
-gluster peer probe gfs2
+```
+
+- Kiểm tra trạng thái của gluster pool
+
+```sh
 gluster peer status
 ```
 
-- Tạo thư mục trên cả 2 node , dùng để mount dữ liệu :
-
-```sh
-mkdir -p /mnt/gluster
-```
 
 - Khởi tạo volume :
 
 ```sh
-gluster  volume create datapoint replica 2 transport tcp  gluster1:/mnt/gluster  gluster2:/mnt/gluster force
+gluster  volume create testvol2 replica 2 transport tcp  gfs1:/mnt/brick1  gfs2:/mnt/brick1
 ```
 
 - Start volume :
 
 
 ```sh
-gluster volume start datapoint
+gluster volume start testvol2
 ```
 
 ### 4. Trên node gfs-client.
@@ -214,7 +250,7 @@ glusterfs-client
 - Thực hiện mount từ thư mục tạo trên gfs server :
 
 ```sh
-mount -t glusterfs 10.10.10.50:/datapoint /mnt 
+mount -t glusterfs 10.10.10.50:/testvol2 /mnt 
 ```
 
 - Kiểm tra :
@@ -227,4 +263,219 @@ df -h
 
 ### 5. Cài đặt NFS 
 
-- UPDATING .........
+#### 5.1. Cài đặt trên node nfs.
+
+- Update các gói cài đặt :
+
+```sh
+apt-get update
+```
+
+- Chỉnh sửa file hosts:
+
+```sh
+127.0.0.1       localhost nfs
+10.10.10.10    controller
+10.10.10.20   compute1
+10.10.10.130    cinder
+10.10.10.50     gfs1
+10.10.10.60     gfs2
+10.10.10.40     nfs
+10.10.10.30     gfs-client
+10.10.10.41     nfs-client
+
+```
+
+- Reeboot lại máy chủ để lấy cấu hình mới nhất :
+
+```sh
+init 6
+```
+
+- Phân vùng ở cứng :
+
+```sh
+fdisk /dev/sdb
+```
+
+![phanvung-gfs](/images/cinder/phanvung-gfs.png)
+
+- Tải gói định dạng xfs :
+
+```sh
+apt-get install xfsprogs -y
+```
+
+- Format phân vùng vừa tạo với định dạng xfs :
+
+```sh
+mkfs.xfs /dev/sdb1
+```
+
+- Mount partition vào thư mục /mnt :
+
+```sh
+mount /dev/sdb1 /mnt
+```
+
+- Tạo thư mục /mnt/nfs :
+
+```sh
+mkdir -p /mnt/nfs
+```
+
+- Cài đặt gói `nfs-kernel-server` :
+
+```sh
+apt-get -y install nfs-kernel-server
+```
+
+- Thực hiện lệnh
+
+```sh
+echo "10.10.10.0/24 /mnt/nfs 10.10.10.0/24(rw,no_root_squash)" >> /ect/exports
+```
+
+Cho phép mount thư mục /mnt/nfs đến dải 10.10.10.0/24
+
+- Thực hiện lệnh :
+
+```sh
+echo "/dev/sdb1 /mnt xfs defaults 0 0" >> /etc/fstab
+```
+
+Để hệ thống tự động mount vào thư mục khi restart hệ thống.
+
+- Khởi động lại NFS :
+
+```sh
+/etc/init.d/nfs-kernel-server restart
+```
+
+#### 5.2. Cài đặt trên node nfs-client (Chỉ mang mục đích thử nghiệm quá trình mount đã thành công hay chưa).
+
+- Update các gói cài đặt :
+
+```sh
+apt-get update
+```
+
+- Chỉnh sửa file hosts:
+
+```sh
+127.0.0.1       localhost nfs-client
+10.10.10.10    controller
+10.10.10.20   compute1
+10.10.10.130    cinder
+10.10.10.50     gfs1
+10.10.10.60     gfs2
+10.10.10.40     nfs
+10.10.10.30     gfs-client
+10.10.10.41     nfs-client
+
+```
+
+- Reeboot lại máy chủ để lấy cấu hình mới nhất :
+
+```sh
+init 6
+```
+
+- Cài đặt gói `nfs-common` :
+
+```sh
+apt-get -y install nfs-common
+```
+
+- Tạo thư mục `/mnt/a` để mount thư mục từ nfs server về :
+
+```sh
+mkdir -p /mnt/a
+```
+
+- Thực hiện mount thư mục `mnt/nfs` về thư mục `/mnt/a` :
+
+```sh
+mount 10.10.10.40:/mnt/nfs /mnt/a
+```
+
+- Kiểm tra :
+
+```sh
+df -h
+```
+
+![nfs-mount](/images/cinder/nfs-mount.png)
+
+#### 5.3. Cài đặt trên node Cinder.
+
+- Thực hiện lệnh :
+
+```sh
+echo "/dev/sdb1 /mnt xfs defaults 0 0" >> /etc/fstab
+```
+
+Để hệ thống tự động mount vào thư mục khi restart hệ thống.
+
+
+
+## II. Kiểm thử.
+
+### Trên node controller , chúng ta thực hiện cấu hình backends :
+
+- Kiểm tra xem các backends đã kết nối được đến Cinder hay chưa :
+
+```sh
+cinder service-list
+```
+
+![service_list_test](/images/cinder/service_list_test.png)
+
+- Tạo volume-type cho glusterfs :
+
+```sh
+cinder type-create glusterfs
+cinder type-create nfs
+```
+
+- Kiểm tra cinder type-list :
+
+![cinder-type-list](/images/cinder/cinder-type-list.png)
+
+- Tạo một volume có backends gfs để thử nghiệm :
+
+```sh
+cinder create --display_name disk01 10 --volume-type glusterfs
+```
+
+![create-volume-gfs](/images/cinder/create-volume-gfs.png)
+
+- Kiểm tra tình trạng của volume :
+
+```sh
+cinder list
+```
+
+![kiemtra-gfs](/images/cinder/kiemtra-gfs.png)
+
+- Tạo một volume có backends nfs để thử nghiệm :
+
+```sh
+cinder create --display_name disk_nfs-2 --volume-type nfs 10
+```
+
+- Kiểm tra tình trạng của Volume :
+
+```sh
+cinder list
+```
+
+![cinder_test_nfs](/images/cinder/cinder_test_nfs.png)
+
+- Kiểm tra lại xem volume có được lưu trữ trên backends chỉ định hay không (thực hiện trên backends server ) :
+
+![check_backends](/images/cinder/check_backends.png)
+
+# Tham Khảo :
+
+http://www.tecmint.com/how-to-setup-nfs-server-in-linux/
