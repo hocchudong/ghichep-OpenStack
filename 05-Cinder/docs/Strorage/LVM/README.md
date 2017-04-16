@@ -1,1 +1,0 @@
-# Ghi chép về LVM

@@ -14,6 +14,8 @@
 <a name="caidat"></a>
 ## 1. Cài đặt Cinder trên một node riêng.
 
+- Lưu ý : Trên mô hình phải được cài đặt sẵn OpenStack , nếu chưa có tham khảo tại [đây](https://github.com/congto/OpenStack-Mitaka-Scripts/tree/master/OPS-Mitaka-LB-Ubuntu)
+
 ### 1.1. Mô hình.
 
 ![mohinh](/images/cinder/mohinh.png)
