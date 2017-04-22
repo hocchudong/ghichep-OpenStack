@@ -65,6 +65,8 @@ bởi vì Celph đã được tối ưu hóa để làm việc với backup.
 
 ## II. Cài đặt.
 
+- Lưu ý : Trên mô hình phải được cài đặt sẵn OpenStack và Cinder, nếu chưa có tham khảo tại [đây](https://github.com/congto/OpenStack-Mitaka-Scripts/tree/master/OPS-Mitaka-LB-Ubuntu)
+
 ### 1. Trên node NFS :
 
 - Tạo các thư mục `backup_mount` và `cinder_backup`
