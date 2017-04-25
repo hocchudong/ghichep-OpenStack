@@ -200,7 +200,110 @@ Trong bài lab này tôi sẽ thực hiện TH1 là không có kết nối với
 - Khi di chuyển phảo chỉ định compute node 
 ```
 
-# Đang cập nhật.
+- Kiểm tra các `zone` :
+
+```sh
+nova availability-zone-list | egrep -A 10 "^\| nova"
+
+
+| nova-1                | available                              |
+| |- compute1           |                                        |
+| | |- nova-compute     | enabled :-) 2017-04-21T06:47:49.000000 |
+| nova                  | available                              |
+| |- compute2           |                                        |
+| | |- nova-compute     | enabled :-) 2017-04-21T06:47:56.000000 |
++-----------------------+----------------------------------------+
+
+```
+
+- Kiểm tra thông tin Instance để biết chúng nằm trong AZ nào :
+
+```sh
+nova list --field name,status,OS-EXT-STS:vm_state,OS-EXT-AZ:availability_zone,OS-EXT-SRV-ATTR:hypervisor_hostname
+
++--------------------------------------+-----------+---------+----------------------+------------------------------+--------------------------------------+
+| ID                                   | Name      | Status  | OS-EXT-STS: Vm State | OS-EXT-AZ: Availability Zone | OS-EXT-SRV-ATTR: Hypervisor Hostname |
++--------------------------------------+-----------+---------+----------------------+------------------------------+--------------------------------------+
+| 51d72e61-6125-4885-85aa-6f331a3f03a3 | demo01    | SHUTOFF | stopped              | nova                         | compute2                             |
+| 33c20114-3564-4095-baec-3bdd2af1efdc | demo_az_1 | SHUTOFF | stopped              | nova-1                       | compute1                             |
+| f11f98ac-286d-469f-8915-8bbde4fb3f1c | demo_zone | ACTIVE  | active               | nova                         | compute2                             |
+| e97d3a7c-5549-4870-af71-0eebdd7ac3d0 | doem      | SHUTOFF | stopped              | nova                         | compute2                             |
+| 2ca1209c-c2dd-451e-bf53-d9103f400ba9 | vm1       | SHUTOFF | stopped              | nova-1                       | compute1                             |
+| 6a4e53cb-0cf3-4113-9571-c42aa9f1afa4 | vm2       | SHUTOFF | stopped              | nova-1                       | compute1                             |
++--------------------------------------+-----------+---------+----------------------+------------------------------+--------------------------------------+
+
+
+```
+
+- Thực hiện migration :
+
+```sh
+nova migrate --poll vm2
+Server migrating... 100% complete
+Finished
+```
+
+- Kiểm tra trạng thái :
+
+```sh
+nova list --field name,status,OS-EXT-STS:vm_state,OS-EXT-AZ:availability_zone,OS-EXT-SRV-ATTR:hypervisor_hostname
+
++--------------------------------------+-----------+---------------+----------------------+------------------------------+--------------------------------------+
+| ID                                   | Name      | Status        | OS-EXT-STS: Vm State | OS-EXT-AZ: Availability Zone | OS-EXT-SRV-ATTR: Hypervisor Hostname |
++--------------------------------------+-----------+---------------+----------------------+------------------------------+--------------------------------------+
+| 51d72e61-6125-4885-85aa-6f331a3f03a3 | demo01    | SHUTOFF       | stopped              | nova                         | compute2                             |
+| 33c20114-3564-4095-baec-3bdd2af1efdc | demo_az_1 | SHUTOFF       | stopped              | nova-1                       | compute1                             |
+| f11f98ac-286d-469f-8915-8bbde4fb3f1c | demo_zone | ACTIVE        | active               | nova                         | compute2                             |
+| e97d3a7c-5549-4870-af71-0eebdd7ac3d0 | doem      | SHUTOFF       | stopped              | nova                         | compute2                             |
+| 2ca1209c-c2dd-451e-bf53-d9103f400ba9 | vm1       | SHUTOFF       | stopped              | nova-1                       | compute1                             |
+| 6a4e53cb-0cf3-4113-9571-c42aa9f1afa4 | vm2       | VERIFY_RESIZE | resized              | nova                         | compute1                             |
++--------------------------------------+-----------+---------------+----------------------+------------------------------+--------------------------------------+
+
+```
+
+- Xác nhận migration :
+
+```sh
+nova resize-confirm vm2
+```
+
+- Kiểm tra :
+
+```sh
++--------------------------------------+-----------+---------------+----------------------+------------------------------+--------------------------------------+
+| ID                                   | Name      | Status        | OS-EXT-STS: Vm State | OS-EXT-AZ: Availability Zone | OS-EXT-SRV-ATTR: Hypervisor Hostname |
++--------------------------------------+-----------+---------------+----------------------+------------------------------+--------------------------------------+
+| 51d72e61-6125-4885-85aa-6f331a3f03a3 | demo01    | SHUTOFF       | stopped              | nova                         | compute2                             |
+| 33c20114-3564-4095-baec-3bdd2af1efdc | demo_az_1 | SHUTOFF       | stopped              | nova-1                       | compute1                             |
+| f11f98ac-286d-469f-8915-8bbde4fb3f1c | demo_zone | ACTIVE        | active               | nova                         | compute2                             |
+| e97d3a7c-5549-4870-af71-0eebdd7ac3d0 | doem      | SHUTOFF       | stopped              | nova                         | compute2                             |
+| 2ca1209c-c2dd-451e-bf53-d9103f400ba9 | vm1       | SHUTOFF       | stopped              | nova-1                       | compute1                             |
+| 6a4e53cb-0cf3-4113-9571-c42aa9f1afa4 | vm2       | SHUTOFF       | stopped              | nova                         | compute1                             |
++--------------------------------------+-----------+---------------+----------------------+------------------------------+--------------------------------------+
+```
+
+- Bật máy kiểm tra :
+
+```sh
+nova start vm2
+```
+
+- Kiểm tra :
+
+```sh
+nova list --field name,status,OS-EXT-STS:vm_state,OS-EXT-AZ:availability_zone,OS-EXT-SRV-ATTR:hypervisor_hostname
+
++--------------------------------------+-----------+---------------+----------------------+------------------------------+--------------------------------------+
+| ID                                   | Name      | Status        | OS-EXT-STS: Vm State | OS-EXT-AZ: Availability Zone | OS-EXT-SRV-ATTR: Hypervisor Hostname |
++--------------------------------------+-----------+---------------+----------------------+------------------------------+--------------------------------------+
+| 51d72e61-6125-4885-85aa-6f331a3f03a3 | demo01    | SHUTOFF       | stopped              | nova                         | compute2                             |
+| 33c20114-3564-4095-baec-3bdd2af1efdc | demo_az_1 | SHUTOFF       | stopped              | nova-1                       | compute1                             |
+| f11f98ac-286d-469f-8915-8bbde4fb3f1c | demo_zone | ACTIVE        | active               | nova                         | compute2                             |
+| e97d3a7c-5549-4870-af71-0eebdd7ac3d0 | doem      | SHUTOFF       | stopped              | nova                         | compute2                             |
+| 2ca1209c-c2dd-451e-bf53-d9103f400ba9 | vm1       | SHUTOFF       | stopped              | nova-1                       | compute1                             |
+| 6a4e53cb-0cf3-4113-9571-c42aa9f1afa4 | vm2       | ACTIVE        | active               | nova                         | compute1                             |
++--------------------------------------+-----------+---------------+----------------------+------------------------------+--------------------------------------+
+```
 
 ### 2.3. Migrate an Instance with Zero Downtime: OpenStack Live Migration with KVM Hypervisor and NFS Shared Storage.
 

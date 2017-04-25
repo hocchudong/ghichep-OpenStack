@@ -124,3 +124,129 @@ nova boot doem --flavor 1 --image acc8392e-e360-4c31-92e1-9115f2d04c33 \
 - Kiểm tra trên Dashboard :
 
 ![test_boot](/images/nova/test_boot.png)
+
+## 2. Chỉ định nhiều compute mặc định .
+
+Ở phần 1 chúng ta đã biết cách làm như thế nào để tạo ra được hnieefu zone, nhưng khi tạo ra nhiều zone rồi chúng ta làm cách nào 
+để có thể set được zone nào đó mặc định, sau đây là cách thực hiện .
+
+- Trên node `Controller` dùng trình soạn thảo vi để mở file cấu hình `/etc/nova/nova.conf`
+
+```sh
+vi /etc/nova/nova.conf
+```
+
+- Tại section [DEFAULT] thêm dòng sau :
+
+```sh
+default_availability_zone = nova
+
+```
+
+- Restart lại các dịch vụ `service nova-* restart`
+
+### Kiểm tra  :
+
+- Tạo mới 1 máy ảo :
+
+```sh
+nova boot demo_zone --flavor 1 --image acc8392e-e360-4c31-92e1-9115f2d04c33 \
+--nic net-id=4c711790-7cfc-42ab-8704-88d72680531a
+
++--------------------------------------+-----------------------------------------------+
+| Property                             | Value                                         |
++--------------------------------------+-----------------------------------------------+
+| OS-DCF:diskConfig                    | MANUAL                                        |
+| OS-EXT-AZ:availability_zone          |                                               |
+| OS-EXT-SRV-ATTR:host                 | -                                             |
+| OS-EXT-SRV-ATTR:hostname             | demo-zone                                     |
+| OS-EXT-SRV-ATTR:hypervisor_hostname  | -                                             |
+| OS-EXT-SRV-ATTR:instance_name        | instance-00000009                             |
+| OS-EXT-SRV-ATTR:kernel_id            |                                               |
+| OS-EXT-SRV-ATTR:launch_index         | 0                                             |
+| OS-EXT-SRV-ATTR:ramdisk_id           |                                               |
+| OS-EXT-SRV-ATTR:reservation_id       | r-fh23o9ep                                    |
+| OS-EXT-SRV-ATTR:root_device_name     | -                                             |
+| OS-EXT-SRV-ATTR:user_data            | -                                             |
+| OS-EXT-STS:power_state               | 0                                             |
+| OS-EXT-STS:task_state                | scheduling                                    |
+| OS-EXT-STS:vm_state                  | building                                      |
+| OS-SRV-USG:launched_at               | -                                             |
+| OS-SRV-USG:terminated_at             | -                                             |
+| accessIPv4                           |                                               |
+| accessIPv6                           |                                               |
+| adminPass                            | R4tYhanZ2Ggd                                  |
+| config_drive                         |                                               |
+| created                              | 2017-04-25T15:21:56Z                          |
+| description                          | -                                             |
+| flavor                               | m1.tiny (1)                                   |
+| hostId                               |                                               |
+| host_status                          |                                               |
+| id                                   | f11f98ac-286d-469f-8915-8bbde4fb3f1c          |
+| image                                | cirros (acc8392e-e360-4c31-92e1-9115f2d04c33) |
+| key_name                             | -                                             |
+| locked                               | False                                         |
+| metadata                             | {}                                            |
+| name                                 | demo_zone                                     |
+| os-extended-volumes:volumes_attached | []                                            |
+| progress                             | 0                                             |
+| security_groups                      | default                                       |
+| status                               | BUILD                                         |
+| tenant_id                            | 242e5fe186c04adfaa3e50f4b8f50a16              |
+| updated                              | 2017-04-25T15:21:57Z                          |
+| user_id                              | 9ab80ad692454a0496124528ef13ee51              |
++--------------------------------------+-----------------------------------------------+
+
+```
+
+- Kiểm tra zone của máy ảo vừa tạo :
+
+```sh
+nova show demo_zone
+
++--------------------------------------+----------------------------------------------------------+
+| Property                             | Value                                                    |
++--------------------------------------+----------------------------------------------------------+
+| OS-DCF:diskConfig                    | MANUAL                                                   |
+| OS-EXT-AZ:availability_zone          | nova                                                     |
+| OS-EXT-SRV-ATTR:host                 | compute2                                                 |
+| OS-EXT-SRV-ATTR:hostname             | demo-zone                                                |
+| OS-EXT-SRV-ATTR:hypervisor_hostname  | compute2                                                 |
+| OS-EXT-SRV-ATTR:instance_name        | instance-00000009                                        |
+| OS-EXT-SRV-ATTR:kernel_id            |                                                          |
+| OS-EXT-SRV-ATTR:launch_index         | 0                                                        |
+| OS-EXT-SRV-ATTR:ramdisk_id           |                                                          |
+| OS-EXT-SRV-ATTR:reservation_id       | r-fh23o9ep                                               |
+| OS-EXT-SRV-ATTR:root_device_name     | /dev/vda                                                 |
+| OS-EXT-SRV-ATTR:user_data            | -                                                        |
+| OS-EXT-STS:power_state               | 1                                                        |
+| OS-EXT-STS:task_state                | -                                                        |
+| OS-EXT-STS:vm_state                  | active                                                   |
+| OS-SRV-USG:launched_at               | 2017-04-25T15:22:27.000000                               |
+| OS-SRV-USG:terminated_at             | -                                                        |
+| accessIPv4                           |                                                          |
+| accessIPv6                           |                                                          |
+| config_drive                         |                                                          |
+| created                              | 2017-04-25T15:21:56Z                                     |
+| description                          | -                                                        |
+| flavor                               | m1.tiny (1)                                              |
+| hostId                               | ed3f8f3fd7f95b8d3fe2b60652a70377a6c38dbd6ed647dbe13d3bb1 |
+| host_status                          | UP                                                       |
+| id                                   | f11f98ac-286d-469f-8915-8bbde4fb3f1c                     |
+| image                                | cirros (acc8392e-e360-4c31-92e1-9115f2d04c33)            |
+| key_name                             | -                                                        |
+| locked                               | False                                                    |
+| metadata                             | {}                                                       |
+| name                                 | demo_zone                                                |
+| os-extended-volumes:volumes_attached | []                                                       |
+| progress                             | 0                                                        |
+| security_groups                      | default                                                  |
+| selservice network                   | 10.10.10.135                                             |
+| status                               | ACTIVE                                                   |
+| tenant_id                            | 242e5fe186c04adfaa3e50f4b8f50a16                         |
+| updated                              | 2017-04-25T15:22:27Z                                     |
+| user_id                              | 9ab80ad692454a0496124528ef13ee51                         |
++--------------------------------------+----------------------------------------------------------+
+
+```
+
