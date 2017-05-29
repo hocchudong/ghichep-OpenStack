@@ -1,7 +1,8 @@
 #!/bin/bash
 
+## Base https://git.openstack.org/cgit/openstack/kolla-kubernetes/tree/tools/setup_kube_AIO.sh
 ## Compilation of Instructions from Kolla Kubernetes Gate
-## This is meant to set up Kolla Kubernetes All-In-One for CentOS-7
+## This is meant to set up Kolla Kubernetes All-In-One for Ubuntu 16.04
 ## Cinder iSCSI backend is used here
 ## Note that $1 will be the kube proxy IP, $2 will be the tunnel_interface and $3 will be the ext_interface_name
 

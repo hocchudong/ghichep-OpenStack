@@ -554,3 +554,6 @@ export OS_PASSWORD=tbwy6otptly7waSV0n195YeejC5fLDJK2HfKkmhx
 ```
 
 - Truy cập dashboard bằng địa chỉ ip với thông tin username và password ở trên.
+
+# Tài liệu tham khảo
+- https://docs.openstack.org/developer/kolla-kubernetes/deployment-guide.html
