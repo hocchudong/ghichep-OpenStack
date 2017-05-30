@@ -1,6 +1,6 @@
 # 1. Mô hình mạng
 
-![](https://github.com/hocchudong/ghichep-OpenStack/blob/master/13-Kolla/images/openstack-mitaka-network-layout.png?raw=true)
+![](https://github.com/hocchudong/ghichep-OpenStack/blob/master/13-Kolla/kolla-ansible/images/openstack-mitaka-network-layout.png?raw=true)
 
 - Cài đặt phiên bản openstack mitaka trên 2 node controller và compute.
 
@@ -195,6 +195,8 @@ kolla-ansible post-deploy
   ```sh
   tools/cleanup-images
   ```
+
+
 
 # Ref:
 http://cshuo.top/2016/05/26/kolla-mitaka-ubuntu-14-04/
