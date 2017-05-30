@@ -202,3 +202,21 @@ listen heat_api_cfn
   server con1 172.16.69.220:8000 check inter 2000 rise 2 fall 5
   server con2 172.16.69.235:8000 check inter 2000 rise 2 fall 5
 ```
+
+- Ở phần `mariadb` ta thấy node1 con2 cấu hình backup tức là nó sẽ chạy ở chế độ `standby`. 
+```sh
+The Galera cluster configuration directive backup indicates that two of the three controllers are standby nodes. This ensures that only one node services write requests because OpenStack support for multi-node writes is not yet production-ready.
+
+https://docs.openstack.org/ha-guide/controller-ha-haproxy.html
+```
+
+- Ở đây ta thấy không có phần cấu hình chỉ định thuật toán cân bằng tải. Vì vậy, mặc định haproxy sẽ chia tải theo thuật toán roundrobin.
+```sh
+The load balancing algorithm of a backend is set to roundrobin when no other
+algorithm, mode nor option have been set. The algorithm may only be set once
+for each backend.
+
+http://cbonte.github.io/haproxy-dconv/configuration-1.4.html#4.2-balance
+```
+
+
