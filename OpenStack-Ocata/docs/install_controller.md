@@ -1182,7 +1182,7 @@ Trong section [neutron] khai báo mới hoặc sửa thành dòng dưới:
   service neutron-l3-agent restart
   ```
 
-- Tiếp theo sẽ cài đặt neutron trên node compute. Click [ở đây](./install_com.md#)
+- Tiếp theo sẽ cài đặt neutron trên node compute. Click [ở đây](./install_com.md#neutron)
 
 <a name=end></a>
 #### 5.5 Kiểm tra kết quả cài đặt
