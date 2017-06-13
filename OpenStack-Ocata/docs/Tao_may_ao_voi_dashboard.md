@@ -1,5 +1,5 @@
 # Hướng dẫn sử dụng Dashboard tạo máy ảo.
-Sau khi cài đặt thành công Openstack, chúng ta bắt đầu sử dụng dashboard để tạo máy ảo. Bạn có thể tham khảo cài đặt openstack [tại đây](./file_config_nova_in_controller.md) 
+Sau khi cài đặt thành công Openstack, chúng ta bắt đầu sử dụng dashboard để tạo máy ảo. Bạn có thể tham khảo cài đặt openstack [tại đây](./install_controller.md) 
 
 
 ## Đăng nhập vào Dashboard
