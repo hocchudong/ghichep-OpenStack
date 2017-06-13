@@ -1,5 +1,5 @@
 # Hướng dẫn sử dụng Dashboard tạo máy ảo.
-Sau khi cài đặt thành công Openstack, chúng ta bắt đầu sử dụng dashboard để tạo máy ảo. Bạn có thể tham khảo cài đặt openstack [tại đây](./install_controller.md) 
+Sau khi cài đặt thành công Openstack, chúng ta bắt đầu sử dụng dashboard để tạo máy ảo. Bạn có thể tham khảo cài đặt openstack [tại đây](./file_config_nova_in_controller.md) 
 
 
 ## Đăng nhập vào Dashboard
@@ -19,7 +19,7 @@ Sau khi cài đặt thành công Openstack, chúng ta bắt đầu sử dụng d
   
 - Chọn `Other Protocol` để mở tất cả các rule từ bên ngoài vào VMs. Bạn có thể chọn `SSH` để đăng nhập vào máy ảo thông qua ssh (chọn `Other Protocol` thì cũng đã bao gồm cả ssh rồi).
 
-  ![](..images/add_rule_3.png)
+  ![](../images/add_rule_3.png)
   
 ### 2. Tạo network
 - I. Tạo dải mạng cho phép máy ảo ra ngoài internet.
