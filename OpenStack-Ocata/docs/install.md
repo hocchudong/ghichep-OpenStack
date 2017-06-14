@@ -17,21 +17,21 @@
 - [Cài đặt dashboard](#12)
 
 <a name=1></a>
-## Mô hình 
+# Mô hình 
 - Mô hình cài đặt Openstack OCATA. Trong hướng dẫn này thực hiện cài đặt trên 2 node là controller và compute1
 
   ![](../images/layoutnet.png)
   
 <a name=2></a>
-## IP Planning
+# IP Planning
 - Yêu cầu phần cứng cho 2 nodes controller và computer1
   ![](../images/IPPlanning.png)
   
 <a name=3></a>
-## Cài đặt môi trường
+# Cài đặt môi trường
 
 <a name=con></a>
-## I. Cài đặt Node controller
+### Cài đặt Node controller
 - Lưu ý:
   ```sh
   - Đăng nhập với quyền root cho tất cả các bước cài đặt
@@ -41,13 +41,13 @@
 
 - Tiến hành cài đặt trên hệ điều hành Ubuntu Server 16.04 64bit.
 
-### 1. Cài đặt môi trường
+### Cài đặt môi trường
 - Cập nhật các gói phần mềm
   ```sh
   apt-get update
   ```
   
-### 1.1 Cài đặt card mạng cho máy
+### Cài đặt card mạng cho máy
 - Dùng lệnh vi để sửa file `/etc/network/interfaces` với nội dung như sau. 
   ```sh
   auto ens3
@@ -114,7 +114,7 @@
   ```sh
   init 6
   ```
-### 1.2 Cài đặt NTP.
+### Cài đặt NTP.
 - 1. Cài gói chrony.
   ```sh
   apt-get -y install chrony
@@ -149,7 +149,7 @@
   ^? bera.learn.ac.lk              3   6     3     2  -2305us[-2305us] +/-  269ms
   ```
   
-### 1.3 Cài đặt repos để cài OpenStack OCATA
+### Cài đặt repos để cài OpenStack OCATA
 - 1. Cài đặt gói để cài OpenStack OCATA
   ```sh
   apt-get install software-properties-common -y
@@ -168,7 +168,7 @@
   init 6
   ```
   
-### 1.4 Cài đặt SQL database
+### Cài đặt SQL database
 - 1. Cài đặt MariaDB
   ```sh
   apt install mariadb-server python-pymysql -y
@@ -207,7 +207,7 @@
   MariaDB [(none)]>
   MariaDB [(none)]>
   ```
-### 1.4. Cài đặt RabbitMQ
+### Cài đặt RabbitMQ
 - 1. Cài đặt gói
   ```sh
   apt install rabbitmq-server -y
@@ -221,7 +221,7 @@
   rabbitmqctl set_permissions openstack ".*" ".*" ".*"
   ```
   
-### 1.5 Cài đặt Memcached
+### Cài đặt Memcached
 - 1. Cài đặt các gói cần thiết cho memcached
   ```sh
   apt install memcached python-memcache -y
@@ -237,13 +237,13 @@
   
 <a name=com></a>
 ## Cài đặt môi trường trên node compute1
-### 1. Cài đặt môi trường
+### Cài đặt môi trường
 - Cập nhật các gói phần mềm
   ```sh
   apt-get update
   ```
   
-### 1.1 Cài đặt card mạng cho máy
+### Cài đặt card mạng cho máy
 - Dùng lệnh vi để sửa file `/etc/network/interfaces` với nội dung như sau. 
   ```sh
   auto ens3
@@ -315,7 +315,7 @@
   init 6
   ```
   
-### 1.2 Cài đặt NTP.
+### Cài đặt NTP.
 - 1. Cài gói chrony.
   ```sh
   apt install chrony -y
@@ -342,7 +342,7 @@
   ^* controller                    3   6    17    23    -10ns[+6000ns] +/-  248ms
   ```
   
-### 1.3 Cài đặt repos để cài OpenStack OCATA
+### Cài đặt repos để cài OpenStack OCATA
 - 1. Cài đặt gói để cài OpenStack OCATA
   ```sh
   apt-get install software-properties-common -y
@@ -365,10 +365,10 @@
 - Tiến hành cài đặt các dịch vụ trên các node.
 
 <a name=4></a>
-### 2. Cài dịch vụ Identity (keystone)
+# Cài dịch vụ Identity (keystone)
 - Dịch vụ này cài đặt trên node controller.
 
-#### 2.1 Tạo database cho keystone
+#### Tạo database cho keystone
 - 1. Đăng nhập vào MariaDB
   ```sh
   mysql -u root -pWelcome123
@@ -384,7 +384,7 @@
   FLUSH PRIVILEGES;
   exit;
   ```
-#### 2.2 Cài đặt và cấu hình keystone
+#### Cài đặt và cấu hình keystone
 - 1. Cài đặt keystone
   ```sh
   apt install keystone -y
@@ -421,14 +421,14 @@
   --bootstrap-region-id RegionOne
   ```
   
-#### 2.3 Cấu hình apache cho keysonte
+#### Cấu hình apache cho keysonte
 - Dùng vi để mở và sửa file `/etc/apache2/apache2.conf`. Thêm dòng dưới ngay sau dòng `# Global configuration`
   ```sh
   # Global configuration
   ServerName controller
   ```
 
-#### 2.4 Kết thúc cài đặt
+#### Kết thúc cài đặt
 - 1. Restart lại apache và xóa database SQLite mặc định
   ```sh
   service apache2 restart
@@ -445,7 +445,7 @@
   export OS_IDENTITY_API_VERSION=3
   ```
   
-#### 2.5. Tạo domain, projects, users, và roles
+#### Tạo domain, projects, users, và roles
 - 1. Tạo project service
   ```sh
   ~# openstack project create --domain default \
@@ -513,7 +513,7 @@
   openstack role add --project demo --user demo user
   ```
   
-#### 2.6 Kiểm chứng lại các bước cài đặt keysonte
+#### Kiểm chứng lại các bước cài đặt keysonte
 - 1. Vô hiệu hóa cơ chế xác thực bằng token tạm thời trong keysonte bằng cách xóa `admin_token_auth` trong các section `[pipeline:public_api]`, `[pipeline:admin_api]` và `[pipeline:api_v3]` của file `/etc/keystone/keystone-paste.ini`
 - 2. Bỏ thiết lập trong biến môi trường của OS_AUTH_URL và OS_PASSWORD bằng lệnh:
   ```sh
@@ -554,7 +554,7 @@
   +------------+------------------------------------------------------------------------------------------------------------------------------------+
   ```
   
-#### 2.7 Tạo script biến môi trường cho client
+#### Tạo script biến môi trường cho client
 - 1. Tạo file `admin-openrc` với nội dung sau:  
   ```sh
   export OS_PROJECT_DOMAIN_NAME=Default
@@ -597,10 +597,10 @@
   ```
   
 <a name=5></a>
-### 3. Cài dịch vụ Image (Glance)
+# Cài dịch vụ Image (Glance)
 - Dịch vụ này được cài đặt trên node controller.
 
-#### 3.1 Tạo database cho glance
+#### Tạo database cho glance
 - 1. Đăng nhập vào mysql
   ```sh
   mysql -u root -pWelcome123
@@ -616,7 +616,7 @@
   FLUSH PRIVILEGES;
  	exit;
   ```
-#### 3.2 Tạo user glance, gán quyền và tạo endpoint API cho dịch vụ glance
+#### Tạo user glance, gán quyền và tạo endpoint API cho dịch vụ glance
 - 1. Chạy script biến môi trường: `source admin-openrc`
 - 2. Tạo user glance:
   ```sh
@@ -676,7 +676,7 @@
   image admin http://controller:9292
   ```
 
-#### 3.3 Cài đặt và cấu hình cho dịch vụ glance
+#### Cài đặt và cấu hình cho dịch vụ glance
 - 1. Cài đặt gói glance
   ```sh
   apt install glance -y
@@ -736,7 +736,7 @@
   service glance-registry restart
   service glance-api restart
   ```
-#### 3.4 Kiểm chứng lại việc cài đặt glance
+#### Kiểm chứng lại việc cài đặt glance
 - 1. Chạy script biến môi trường: `source admin-openrc`
 - 2. Tải file image cho glance
   ```sh
@@ -761,13 +761,13 @@
   - Nếu kết quả như trên là đã cài đặt thành công
   
 <a name=6></a>
-### Cài dịch vụ Compute (Nova)
+# Cài dịch vụ Compute (Nova)
 - Tóm tắt về dịch vụ nova trong OpenStack
   - Đây là bước cài đặt các thành phần của nova trên máy chủ `Controller`
   - Nova đảm nhiệm chức năng cung cấp và quản lý tài nguyên trong OpenStack để cấp cho các VM. Trong hướng dẫn nãy sẽ sử dụng KVM làm hypervisor. Nova sẽ tác động vào KVM thông qua libvirt
 
 <a name=7></a>
-#### Cài đặt các thành phần trên node controller.
+# Cài đặt các thành phần trên node controller.
 #### Tạo database cho nova
 - Đăng nhập vào database với quyền root
   ```sh
@@ -1006,7 +1006,7 @@
 ## Sau khi cài đặt xong các thành phần của nova trên node **controller**, chúng ta bắt đầu cài đặt nova-compute trên node **compute1**.
 
 <a name=8></a>
-### Cài đặt nova-compute1
+# Cài đặt nova-compute1
 #### Cài đặt và cấu hình
 - 1. Cài đặt
   ```sh
@@ -1193,10 +1193,10 @@
   ```
   
 <a name=9></a>
-### Cài đặt Networking service (NEUTRON).
+# Cài đặt Networking service (NEUTRON).
 
 <a name=10></a>
-#### Cài đặt trên node Controller.
+# Cài đặt trên node Controller.
 #### Tạo database cho neutron
 - 1. Đăng nhập vào neutron
   ```sh
@@ -1434,6 +1434,7 @@ Trong section [neutron] khai báo mới hoặc sửa thành dòng dưới:
 - Tiếp theo sẽ cài đặt neutron trên node compute.
 
 <a name=11></a>
+# Cài đặt neutron trên node compute1
 ### Cài đặt và cấu hình neutron
 - 1 cài đặt các thành phần
   ```sh
@@ -1511,7 +1512,7 @@ Trong section [neutron] khai báo mới hoặc sửa thành dòng dưới:
   service neutron-linuxbridge-agent restart
   ```
 
-- Quay lại node controller để kiểm lại cài đặt neutron
+- Quay lại **node controller** để kiểm lại cài đặt neutron
 
 #### Kiểm tra kết quả cài đặt
 - 1. Khai báo biến môi trường
@@ -1599,7 +1600,7 @@ Trong section [neutron] khai báo mới hoặc sửa thành dòng dưới:
   ```
 
 <a name=12></a>
-### 6. Cài đặt và cấu hình HORIZON (dashboad)
+# Cài đặt và cấu hình HORIZON (dashboad)
 - Thành phần cài đặt trên controller node.
 - 1. Cài đặt các thành phần cho dashboad
   ```sh
