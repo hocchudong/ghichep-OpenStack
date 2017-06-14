@@ -1,10 +1,10 @@
 # File cấu hình nova
 
-## Sau đây là các dòng cấu hình cơ bản của nova trên node controller
+## 1. Sau đây là các dòng cấu hình cơ bản của nova trên node controller
 
 - File cấu hình mặc định là `/etc/nova/nova.conf`
 
-- Cấu hình truy cập database. Ở trong section `[api_database]` và `[database]`.
+- 1. Cấu hình truy cập database. Ở trong section `[api_database]` và `[database]`.
 
   ```sh
   [api_database]
@@ -18,7 +18,7 @@
   
   - `NOVA_DBPASS` là mật khẩu của user nova được cấp phát cho phép truy cập vào các database của dịch vụ compute.
   
-- Cấu hình truy cập RabbitMQ. Ở trong section [DEFAULT]
+- 2. Cấu hình truy cập RabbitMQ. Ở trong section [DEFAULT]
   
   ```sh
   [DEFAULT]
@@ -28,7 +28,7 @@
   
   - `RABBIT_PASS` là mật khẩu của tài khoản `openstack` trong RabbitMQ.
   
-- Cấu hình truy cập đến dịch vụ Identity (keystone).
+- 3. Cấu hình truy cập đến dịch vụ Identity (keystone).
 
   ```sh
   [api]
@@ -52,7 +52,7 @@
   password = NOVA_PASS
   ```
   
-- Cấu hình địa chỉ ip của interface dùng để quản lý trên node controller. Dòng cấu hình này ở trong section [DEFAULT].
+- 4. Cấu hình địa chỉ ip của interface dùng để quản lý trên node controller. Dòng cấu hình này ở trong section [DEFAULT].
 
   ```sh
   [DEFAULT]
@@ -61,7 +61,7 @@
   my_ip = 10.10.10.190
   ```
   
-- Enable hỗ trợ dịch vụ Networking.
+- 5. Enable hỗ trợ dịch vụ Networking.
   
   ```sh
   [DEFAULT]
@@ -71,7 +71,7 @@
   ```
   - Mặc định, Compute sử dụng một firewall driver nội bộ. Từ khi dịch vụ Networking bao gồm một firewall driver, bạn phải disable nó bằng cách sử dụng `nova.virt.firewall.NoopFirewallDriver firewall driver.`
 
-- Trong [vnc] section, cấu hình VNC proxy để sử dụng địa chỉ ip của interface quản lý của node controller.
+- 6. Trong [vnc] section, cấu hình VNC proxy để sử dụng địa chỉ ip của interface quản lý của node controller.
   
   ```sh
   [vnc]
@@ -87,7 +87,7 @@
   vncserver_proxyclient_address = $my_ip
   ```
   
-- Trong [glance] section, cấu hình vị trí API của dịch vụ Image.
+- 7. Trong [glance] section, cấu hình vị trí API của dịch vụ Image.
 
   ```sh
   [glance]
@@ -96,7 +96,7 @@
   ```
   - cung cấp endpoint api đến dịch vụ glance.
   
-- Trong [oslo_concurrency] section, cấu hình lock path:
+- 8. Trong [oslo_concurrency] section, cấu hình lock path:
 
   ```sh
   [oslo_concurrency]
@@ -104,7 +104,7 @@
   lock_path = /var/lib/nova/tmp
   ```
   
-- Trong [placement] section, cấu hình Placement API:
+- 9. Trong [placement] section, cấu hình Placement API:
   
   ```sh
   [placement]
@@ -121,11 +121,11 @@
   - `PLACEMENT_PASS` là mật khẩu của user placement trong dịch vụ Identity.
   
   
-## Sau đây là các dòng cấu hình cơ bản của nova trên node compute
+## 2. Sau đây là các dòng cấu hình cơ bản của nova trên node compute
 
 - File cấu hình `/etc/nova/nova.conf`
 
-- Cấu hình truy cập RabbitMQ. Ở trong section [DEFAULT]
+- 1. Cấu hình truy cập RabbitMQ. Ở trong section [DEFAULT]
   
   ```sh
   [DEFAULT]
@@ -135,7 +135,7 @@
   
   - `RABBIT_PASS` là mật khẩu của tài khoản `openstack` trong RabbitMQ. Cấu hình truy cập RabbitMQ ở trên node controller.
   
-- Cấu hình truy cập đến dịch vụ Identity (keystone). Cũng tương tự như trên node controller.
+- 2. Cấu hình truy cập đến dịch vụ Identity (keystone). Cũng tương tự như trên node controller.
 
   ```sh
   [api]
@@ -156,7 +156,7 @@
   password = NOVA_PASS
   ```
   
-- Cấu hình địa chỉ ip của interface dùng để quản lý trên node controller. Dòng cấu hình này ở trong section [DEFAULT].
+- 3. Cấu hình địa chỉ ip của interface dùng để quản lý trên node controller. Dòng cấu hình này ở trong section [DEFAULT].
 
   ```sh
   [DEFAULT]
@@ -164,7 +164,7 @@
   # Ở đây là địa chỉ IP của interface mà trong hệ thống dùng để quản lý.
   my_ip = 10.10.10.191
   ```
-- Enable hỗ trợ dịch vụ Networking.
+- 4. Enable hỗ trợ dịch vụ Networking.
   
   ```sh
   [DEFAULT]
@@ -173,7 +173,7 @@
   firewall_driver = nova.virt.firewall.NoopFirewallDriver
   ```
   
-- Trong [vnc] section, cấu hình VNC proxy để sử dụng địa chỉ ip của interface quản lý của node controller.
+- 5. Trong [vnc] section, cấu hình VNC proxy để sử dụng địa chỉ ip của interface quản lý của node controller.
   
   ```sh
   [vnc]
