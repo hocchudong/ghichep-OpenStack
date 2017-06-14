@@ -1,14 +1,22 @@
 # Hướng dẫn sử dụng Dashboard tạo máy ảo.
 Sau khi cài đặt thành công Openstack, chúng ta bắt đầu sử dụng dashboard để tạo máy ảo. Bạn có thể tham khảo cài đặt openstack [tại đây](./install_controller.md) 
 
+# Mục lục
+- [1. Add thêm rule](#1)
+- [2. Tạo network](#2)
+- [3. Tạo flavor](#3)
+- [4. Tạo máy ảo card mạng self-service.](#4)
+- [5. Tạo một máy ảo với card mạng được gắn là provider.](#5)
+- [6. Tạo máy ảo với keypair.](#6)
 
+<a name=1></a>
 ## Đăng nhập vào Dashboard
 
   ![](../images/login.png)
   
 - Đăng nhập bằng tài khoản admin
 
-### 1. Add thêm rule
+## 1. Add thêm rule
 - Click tab `Project => Network => Security groups => MANAGE RULES`
 
   ![](../images/add_rule_1.png)
@@ -21,7 +29,8 @@ Sau khi cài đặt thành công Openstack, chúng ta bắt đầu sử dụng d
 
   ![](../images/add_rule_3.png)
   
-### 2. Tạo network
+<a name=2></a>
+## 2. Tạo network
 - I. Tạo dải mạng cho phép máy ảo ra ngoài internet.
 
   - Click tab `Admin => Networks => CREATE NETWORK`
@@ -98,7 +107,8 @@ Sau khi cài đặt thành công Openstack, chúng ta bắt đầu sử dụng d
   
     ![](../images/router_5.png)
     
-### 3. Tạo flavor. 
+<a name=3></a>
+## 3. Tạo flavor. 
 - Click `Admin => Flavors => CREATE FLAVOR`
 
   ![](../images/flavor_1.png)
@@ -114,41 +124,42 @@ Sau khi cài đặt thành công Openstack, chúng ta bắt đầu sử dụng d
   DISK: 5 GB
   ```
   
-### 4. Tạo máy ảo.
-- I. Tạo máy ảo gắn vào card mạng self-service.
-  - Click `Project => Compute => Instances => LAUNCH INSTANCE`
+<a name=4></a>
+## 4. Tạo máy ảo card mạng self-service.
+
+- Click `Project => Compute => Instances => LAUNCH INSTANCE`
   
     ![](../images/vm1.png)
     
-  - Đặt tên `mv69`, số lượng `1`.
+- Đặt tên `mv69`, số lượng `1`.
   
     ![](../images/vm2.png)
     
-  - Chọn images cho VM.
+- Chọn images cho VM.
   
     ![](../images/vm3.png)
     
-  - Chọn flavor.
+- Chọn flavor.
   
     ![](../images/vm4.png)
     
-  - Chọn network => click `LAUNCH INSTANCE`
+- Chọn network => click `LAUNCH INSTANCE`
   
     ![](../images/vm5.png)
     
-  - Chờ một lát sẽ có kết quả như hình sau. Click vào máy ảo.
+- Chờ một lát sẽ có kết quả như hình sau. Click vào máy ảo.
 
     ![](../images/vm6.png)
     
-  - Click tab `Console => Click here to show only console`
+- Click tab `Console => Click here to show only console`
     
     ![](../images/vm7.png)
     
-  - Đăng nhập vào vm69 với user: `cirros` và password: `cubswin:)`
+- Đăng nhập vào vm69 với user: `cirros` và password: `cubswin:)`
   
     ![](../images/vm8.png)
     
-### 5. Associate Floating Ip cho VM để VM có thể ra ngoài internet.
+- II. Associate Floating Ip cho VM để VM có thể ra ngoài internet.
 - Chọn Associate Floating Ip.
 
   ![](../images/floating_1.png)
@@ -175,7 +186,8 @@ Sau khi cài đặt thành công Openstack, chúng ta bắt đầu sử dụng d
 
   ![](../images/ping.png)
   
-### 6. Tạo một máy ảo với card mạng được gắn là provider.
+<a name=5></a>
+## 5. Tạo một máy ảo với card mạng được gắn là provider.
 - Các bước tạo máy ảo theo trình tự như tạo máy ảo ở trên.
 
   ![](../images/vm_1.png)
@@ -198,7 +210,8 @@ Sau khi cài đặt thành công Openstack, chúng ta bắt đầu sử dụng d
 
   ![](../images/vm_7.png)
   
-### 7. Tạo máy ảo với keypair.
+<a name=6></a>
+## 6. Tạo máy ảo với keypair.
 - Keypair dùng để đăng nhập vào máy ảo thông qua ssh mà không cần sử dụng mật khẩu.
 - Phần này sẽ hướng dẫn tạo máy ảo với keypair.
 - Bạn có thể chọn cách tạo máy ảo bằng 1 trong 2 loại card mạng như trên. 
