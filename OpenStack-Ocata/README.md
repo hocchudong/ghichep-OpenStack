@@ -1,11 +1,13 @@
 ## GHI CHÉP VỀ OPENSTACK OCATA
 
 ### Cài đặt
-- [1. Hướng dẫn cài đặt](./docs/install.md)
+- [1. Hướng dẫn cài đặt core Openstack Ocata](./docs/install.md)
 - [2. Hướng dẫn cài đặt node Block Storage](./docs/install_block.md)
 
 ### File cấu hình 
-- [1. File cấu hình của Nova](./files/file_config_nova.md)
+- [File cấu hình cinder](./docs/cinder.conf)
+### Giải thích file cấu hình
+- [1. File cấu hình của Nova](./docs/file_config_nova.md)
 
 ### Lab cơ bản
 - [1. Hướng dẫn tạo máy ảo trên dashboard](./docs/Tao_may_ao_voi_dashboard.md)
