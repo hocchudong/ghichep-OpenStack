@@ -13,13 +13,14 @@
   - [File cấu hình nova trên node controller](./files/nova.conf)
   - [File cấu hình nova trên node compute1](./files/nova1.conf)
 
-
+- [File cấu hình Neutron (đang cập nhật)]
 - [File cấu hình cinder](./files/cinder.conf)
 
 ### Giải thích file cấu hình
 - [1. File cấu hình của Keystone](./docs/Ghi_Chep_File_Config_Keystone.md)
-- [1. File cấu hình của Nova](./docs/file_config_nova.md)
-
+- [2. File cấu hình Glance (đang cập nhật)]
+- [3. File cấu hình của Nova](./docs/file_config_nova.md)
+- [4. File cấu hình Neutron (đang cập nhật)]
 
 ## Lab admin
 ---
@@ -40,7 +41,7 @@
 - [Lab nova cơ bản](./docs/Lab_nova_basic.md)
 
 ### Lab neutron
-
+(đang cập nhật)
 ### Lab cinder
 - [Lab cinder cơ bản](./docs/Lab_cinder_basic.md)
 
