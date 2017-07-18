@@ -6,6 +6,7 @@
 - [3. Cài đặt môi trường](#3)
   - [3.1 Cài đặt trên node controller](#con)
   - [3.2 Cài đặt trên node compute](#com)
+  - [3.3 Cài đặt trên node Block Storage](#block)
 - [4. Cài đặt dịch vụ Identity](#4)
 - [5. Cài đặt dịch vụ Image](#5)
 - [6. Cài đặt dịch vụ Compute](#6)
@@ -14,18 +15,22 @@
 - [7. Cài đặt dịch vụ Networking](#9)
   - [7.1 Cài đặt neutron trên controller](#10)
   - [7.2 Cài đặt neutron trên compute1](#11)
-- [8.Cài đặt dashboard](#12)
+- [8. Cài đặt Block Storage node](#bl)
+  - [8.1 Cài đặt trên node controller](#cbl)
+  - [8.2 Cài đặt trên node Block Storage](#nbl)
+- [9.Cài đặt dashboard](#12)
 
 <a name=1></a>
 # 1. Mô hình 
-- Mô hình cài đặt Openstack OCATA. Trong hướng dẫn này thực hiện cài đặt trên 2 node là controller và compute1
+- Mô hình cài đặt Openstack OCATA. Trong hướng dẫn này thực hiện cài đặt 3 node là controller, compute1 và Block Storage.
 
   ![](../images/layoutnet.png)
   
 <a name=2></a>
 # 2. IP Planning
-- Yêu cầu phần cứng cho 2 nodes controller và computer1
-  ![](../images/IPPlanning.png)
+- Yêu cầu phần cứng cho 3 nodes controller, computer1 và Block Storage.
+  
+  ![](../images/IPBlock.png)
   
 <a name=3></a>
 # 3. Cài đặt môi trường
@@ -109,6 +114,7 @@
   127.0.0.1       localhost       controller
   10.10.10.190    controller
   10.10.10.191    compute1
+  10.10.10.192    block1
   ```
 - Khởi động lại máy, sau đó đăng nhập vào với quyền root.
   ```sh
@@ -309,6 +315,7 @@
   127.0.0.1       localhost       compute1
   10.10.10.191    compute1
   10.10.10.190    controller
+  10.10.10.192    block1
   ```
 - Khởi động lại máy, sau đó đăng nhập vào với quyền root.
   ```sh
@@ -361,6 +368,98 @@
   init 6
   ```
  
+<a name=con></a>
+### 3.3 Cài đặt môi trường cho node Block Storage
+- Cập nhật các gói phần mềm
+  
+  ```sh
+  apt-get update
+  ```
+  
+### 3.3.1 Cài đặt card mạng cho máy
+- Dùng lệnh vi để sửa file `vi /etc/network/interfaces` với nội dung như sau.
+
+  ```sh
+  
+  auto ens3
+  iface ens3 inet static
+          address 10.10.10.192
+          netmask 255.255.255.0
+
+
+  auto ens4
+  iface ens4 inet static
+          address 172.16.69.192
+          netmask 255.255.255.0
+          gateway 172.16.69.1
+          dns-nameservers 8.8.8.8
+  ```
+
+- Khởi động lại card mạng sau khi thiết lập IP tĩnh.
+
+  ```sh
+  ifdown -a && ifup -a
+  ```
+  
+### 3.3.2 Cấu hình hostname và phân giải tên
+- Dùng vi sửa file /etc/hostname với tên là `block1`
+
+  ```sh
+  block1
+  ```
+  
+- Sửa file `/etc/hosts` chứa nội dung như sau:
+
+  ```sh
+  127.0.0.1       localhost       block1
+
+  10.10.10.190    controller
+
+  10.10.10.191    compute1
+
+  10.10.10.192    block1
+  ```
+
+### 3.3.3 Cài đặt `NTP service`:
+- Cài đặt các gói
+
+  ```sh
+  apt install chrony -y
+  ```
+
+- Sửa file `/etc/chrony/chrony.conf` và comment hoặc xóa tất cả dòng có chứa `server` và thêm dòng sau:
+
+  ```sh
+  server controller iburst
+  ```
+  
+- Restart NTP service:
+
+  ```sh
+  service chrony restart
+  ```
+  
+### 3.3.4 Thêm Openstack repository
+
+  ```sh
+  apt install software-properties-common -y
+  add-apt-repository cloud-archive:ocata -y
+  ```
+ 
+### 3.3.5 Cập nhật các gói phần mềm
+  
+  ```sh
+  apt -y update && apt -y dist-upgrade
+  ```
+  
+### 3.3.6 Cài đặt các gói client của OpenStack.
+
+  ```sh
+  apt install python-openstackclient -y
+  ```
+
+---
+
 - Đã chuẩn bị xong môi trường để cài đặt Openstack OCATA.
 - Tiến hành cài đặt các dịch vụ trên các node.
 
@@ -1599,8 +1698,377 @@ Trong section [neutron] khai báo mới hoặc sửa thành dòng dưới:
   +--------------------------------------+--------------------+------------+-------------------+-------+-------+---------------------------+
   ```
 
+<a name=bl></a>
+# 8. Cài đặt Block Storage node
+
+<a name=cbl></a>
+## 8.1 Cài đặt trên node controller
+- Trước khi cài đặt và cấu hình Block Storage service, bạn phải tạo 1 database, service credentials, và API endpoints.  
+### Tạo database
+- 1. Đăng nhập vào MariaDB
+
+  ```sh
+  mysql -u root -pWelcome123
+  ```
+  
+- 2. Tạo database `cinder`
+
+  ```sh
+  CREATE DATABASE cinder;
+  ```
+  
+- 3. Cấp quyền truy cập đến `cinder` database
+
+  ```sh
+  GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'localhost' IDENTIFIED BY 'Welcome123';
+  
+  GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'%' IDENTIFIED BY 'Welcome123';
+  
+  FLUSH PRIVILEGES;
+  exit;
+  ```
+  
+### tạo credentials cho dịch vụ
+- Chạy script biến môi trường: `source admin-openrc`
+- 1. Tạo `cinder` user:
+
+  ```sh
+  ~# openstack user create --domain default --password Welcome123 cinder
+  
+  +---------------------+----------------------------------+
+  | Field               | Value                            |
+  +---------------------+----------------------------------+
+  | domain_id           | default                          |
+  | enabled             | True                             |
+  | id                  | da27ad422b414bb4b9159ce5f385d1b6 |
+  | name                | cinder                           |
+  | options             | {}                               |
+  | password_expires_at | None                             |
+  +---------------------+----------------------------------+
+  ```
+  
+- 2. Thêm `admin` role cho `cinder` user:
+
+  ```sh
+  openstack role add --project service --user cinder admin
+  ```
+
+- 3. Kiểm tra lại xem cinder user có role gì:
+
+  ```sh
+  ~# openstack role list --user cinder --project service
+  Listing assignments using role list is deprecated. Use role assignment list --user <user-name> --project <project-name> --names instead.
+  +----------------------------------+-------+---------+--------+
+  | ID                               | Name  | Project | User   |
+  +----------------------------------+-------+---------+--------+
+  | ec9157c203314df69c4f3805e3fec0e7 | admin | service | cinder |
+  +----------------------------------+-------+---------+--------+
+  ```
+  
+- 4. Tạo `cinderv2` và `cinderv3` service entities:
+
+  ```sh
+  ~# openstack service create --name cinderv2 --description "OpenStack Block Storage" volumev2
+  
+  +-------------+----------------------------------+
+  | Field       | Value                            |
+  +-------------+----------------------------------+
+  | description | OpenStack Block Storage          |
+  | enabled     | True                             |
+  | id          | 9b7c43ccbf88464487910d04e9443e9d |
+  | name        | cinderv2                         |
+  | type        | volumev2                         |
+  +-------------+----------------------------------+
+  ```
+  
+  ```sh
+  ~# openstack service create --name cinderv3 --description "OpenStack Block Storage" volumev3
+  
+  +-------------+----------------------------------+
+  | Field       | Value                            |
+  +-------------+----------------------------------+
+  | description | OpenStack Block Storage          |
+  | enabled     | True                             |
+  | id          | 0512f93bd37c45b88c090488af093e24 |
+  | name        | cinderv3                         |
+  | type        | volumev3                         |
+  +-------------+----------------------------------+
+  ```
+  
+### Tạo Block Storage service API endpoints:
+- volumev2
+
+  ```sh
+  openstack endpoint create --region RegionOne \
+  volumev2 public http://controller:8776/v2/%\(project_id\)s
+  
+  openstack endpoint create --region RegionOne \
+  volumev2 internal http://controller:8776/v2/%\(project_id\)s
+  
+  openstack endpoint create --region RegionOne \
+  volumev2 admin http://controller:8776/v2/%\(project_id\)s
+  ```
+  
+- volumev3
+
+  ```sh
+  openstack endpoint create --region RegionOne \
+  volumev3 public http://controller:8776/v3/%\(project_id\)s
+  
+  openstack endpoint create --region RegionOne \
+  volumev3 internal http://controller:8776/v3/%\(project_id\)s
+  
+  openstack endpoint create --region RegionOne \
+  volumev3 admin http://controller:8776/v3/%\(project_id\)s
+  ```
+
+### Cài đặt và cấu hình các thành phần trên node controller
+- 1. Cài đặt các gói:
+
+  ```sh
+  apt install cinder-api cinder-scheduler -y
+  ```
+  
+- Sao lưu file cấu hình `/etc/cinder/cinder.conf` của cinder trước khi cấu hình
+
+  ```sh
+  cp /etc/cinder/cinder.conf /etc/cinder/cinder.conf.orig
+  ```
+  
+- 2. Thực hiện cấu hình cinder
+- Theo như quá trình mình cài đặt thì file cấu hình của cinder chỉ có 1 section - [DEFAULT]. Những section nào không có thì chỉ việc thêm vào file cấu hình là được.
+
+- Trong `[database]` section, cấu hình truy cập database:
+
+  ```sh
+  [database]
+  # ...
+  connection = mysql+pymysql://cinder:Welcome123@controller/cinder
+  ```
+  
+- Trong `[DEFAULT]` section, cấu hình truy cập RabbitMQ
+
+  ```sh
+  [DEFAULT]
+  # ...
+  transport_url = rabbit://openstack:Welcome123@controller
+  ```
+  
+- Trong [DEFAULT] và [keystone_authtoken] sections, cấu hình truy cập dịch vụ Identity:
+
+  ```sh
+  [DEFAULT]
+  # ...
+  auth_strategy = keystone
+
+  [keystone_authtoken]
+  # ...
+  auth_uri = http://controller:5000
+  auth_url = http://controller:35357
+  memcached_servers = controller:11211
+  auth_type = password
+  project_domain_name = default
+  user_domain_name = default
+  project_name = service
+  username = cinder
+  password = Welcome123
+  ```
+  
+- Trong [DEFAULT] section, cấu hình `my_ip` option để sử dụng địa chỉ **management interface IP** của node controller:
+
+  ```sh
+  [DEFAULT]
+  # ...
+  my_ip = 10.10.10.190
+  ```
+  
+- Trong [oslo_concurrency] section, cấu hình lock path:
+
+  ```sh
+  [oslo_concurrency]
+  # ...
+  lock_path = /var/lib/cinder/tmp
+  ```
+
+- Điền vào database của Block Storage:
+
+  ```sh
+  su -s /bin/sh -c "cinder-manage db sync" cinder
+  ```
+  
+- 3. Cấu hình Compute để sử dụng Block Storage:
+
+- Sửa file `/etc/nova/nova.conf`, sửa trong section [cinder] như sau:
+
+  ```sh
+  [cinder]
+  os_region_name = RegionOne
+  ```
+  
+- 4. Kết thúc cài đặt
+- Restart dịch vụ Compute API:
+
+  ```sh
+  service nova-api restart
+  ```
+
+- Restart dịch vụ Block Storage:
+
+  ```sh
+  service cinder-scheduler restart
+  service apache2 restart
+  ```
+
+<a name=bbl></a>
+## 8.2 Cài đặt trên node Block Storage
+### Cài đặt các tiện ích hỗ trợ.
+
+- 1. Cài đặt lvm2
+
+  ```sh
+  apt install lvm2 -y
+  ```
+  
+- 2. Tạo LVM physical volume `/dev/vdb` (Bạn có thể kiểm tra lại ổ đĩa dùng để cấp volume, ở đây trên hệ thống của mình là ổ `/dev/vdb`)
+
+  ```sh
+  ~# pvcreate /dev/vdb
+  
+  Physical volume "/dev/vdb" successfully created
+  ```
+  
+- 3 Tạo LVM volume group là `cinder-volumes`
+
+  ```sh
+  ~# vgcreate cinder-volumes /dev/vdb
+  
+  Volume group "cinder-volumes" successfully created
+  ```
+  
+- Sửa file `/etc/lvm/lvm.conf`. Thêm dòng filter ở dưới vào section `devices`.
+
+  ```sh
+  devices {
+  ....
+  filter = ["a/vdb/", "r/.*/"]
+
+  ```
+
+- 4 Cài đặt các gói
+
+  ```sh
+  apt install cinder-volume -y
+  ```
+  
+- Thực hiện cấu hình
+- Sửa file `/etc/cinder/cinder.conf` để cấu hình cinder:
+
+- Những section nào không có thì bạn thêm mới vào
+
+- Trong [database] section, cấu hình truy cập database:
+
+  ```sh
+  [database]
+  # ...
+  connection = mysql+pymysql://cinder:Welcome123@controller/cinder
+  ```
+  
+- Trong [DEFAULT] section, cấu hình truy cập RabbitMQ:
+
+  ```sh
+  [DEFAULT]
+  # ...
+  transport_url = rabbit://openstack:Welcome123@controller
+  ```
+  
+- Trong [DEFAULT] và [keystone_authtoken] sections, cấu hình truy cập dịch vụ Identity:
+
+  ```sh
+  [DEFAULT]
+  # ...
+  auth_strategy = keystone
+
+  [keystone_authtoken]
+  # ...
+  auth_uri = http://controller:5000
+  auth_url = http://controller:35357
+  memcached_servers = controller:11211
+  auth_type = password
+  project_domain_name = default
+  user_domain_name = default
+  project_name = service
+  username = cinder
+  password = Welcome123
+  ```
+  
+- Trong [DEFAULT] section, cấu hình tùy chọn my_ip:
+  
+  ```sh
+  [DEFAULT]
+  # ...
+  my_ip = 10.10.10.192
+  ```
+  
+- Trong [lvm] section, cấu hình LVM back end với LVM driver, cinder-volumes volume group, iSCSI protocol, và iSCSI service:
+
+  ```sh
+  [lvm]
+  # ...
+  volume_driver = cinder.volume.drivers.lvm.LVMVolumeDriver
+  volume_group = cinder-volumes
+  iscsi_protocol = iscsi
+  iscsi_helper = tgtadm  
+  ```
+  
+- Trong [DEFAULT] section, enable the LVM back end:
+
+  ```sh
+  [DEFAULT]
+  # ...
+  enabled_backends = lvm
+  ```
+  
+- Trong [DEFAULT] section, cấu hình vị trí của Image service API:
+
+  ```sh
+  [DEFAULT]
+  # ...
+  glance_api_servers = http://controller:9292  
+  ```
+  
+- Trong [oslo_concurrency] section, cấu hình lock path:
+
+  ```sh
+  [oslo_concurrency]
+  # ...
+  lock_path = /var/lib/cinder/tmp  
+  ```
+  
+---
+
+- Kết thúc cài đặt
+
+Restart the Block Storage volume service:
+
+  ```sh
+  service tgt restart
+  service cinder-volume restart
+  ```
+  
+- Kiểm tra lại cài đặt. Thực hiện kiểm tra trên node controller.
+
+  ```sh
+  ~# openstack volume service list
+  +------------------+------------+------+---------+-------+----------------------------+
+  | Binary           | Host       | Zone | Status  | State | Updated At                 |
+  +------------------+------------+------+---------+-------+----------------------------+
+  | cinder-scheduler | controller | nova | enabled | up    | 2017-07-13T16:51:16.000000 |
+  | cinder-volume    | block1@lvm | nova | enabled | up    | 2017-07-13T16:51:09.000000 |
+  +------------------+------------+------+---------+-------+----------------------------+
+  ```
+
 <a name=12></a>
-# 8. Cài đặt và cấu hình HORIZON (dashboad)
+# 9. Cài đặt và cấu hình HORIZON (dashboad)
 - Thành phần cài đặt trên controller node.
 - 1. Cài đặt các thành phần cho dashboad
   ```sh
