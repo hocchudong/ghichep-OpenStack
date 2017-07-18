@@ -1,7 +1,7 @@
 # Ghi chép cấu hình Keystone
 
 ## Mục lục
-Giải thích một số dòng cấu hình trong file cấu hình của keystone `/etc/keystone/keystone.conf`
+Giải thích một số dòng cấu hình cơ bản của keystone `/etc/keystone/keystone.conf`
 - [Section database](#1)
 - [Section fernet_tokens](#2)
 - [Section token](#3)
