@@ -3,6 +3,10 @@
 ### Cài đặt
 - [1. Setup Openstack Ocata](./docs/install.md)
 
+---
+
+- Tài liệu tổng hợp dưới đây được thực hiện dựa trên môi trường đã được cài đặt theo hướng dẫn trên.
+
 ## Keystone
 ### Ghi chép Keystone
 - [Tổng quan về keystone](./docs/overviewkeystone.md)
@@ -22,7 +26,7 @@
 ## Glance
 ### Ghi chép về Glance
 - [Tổng quan về glance](./docs/glanceoverview.md)
-- [Giải thích file cấu hình cơ bản]
+- [Giải thích file cấu hình cơ bản](./docs/file_config_glance.md)
 
 ### LAB với Glance
 - [1. Lab cơ bản](./docs/Command_line_glance.md)
@@ -32,11 +36,11 @@
 
 ## Nova
 ### Ghi chép Nova
-- Tổng quan về nova
-- Giải thích file cấu hình cơ bản
+- [Tổng quan về nova](./docs/novaoverview.md)
+- [Giải thích file cấu hình cơ bản](./docs/file_config_nova.md)
 
 ### LAB với Nova
-- Lab cơ bản
+- [Lab cơ bản](./docs/Lab_nova_basic.md)
 
 
 ## Neutron
@@ -50,10 +54,10 @@
 
 ## Cinder
 ### Ghi chép về Cinder
-- Tổng quan về cinder
-- Giải thích file cấu hình cơ bản
+- [Tổng quan về cinder](./docs/cinderoverview.md)
+- [Giải thích file cấu hình cơ bản](./docs/file_config_cinder.md)
 
 ### LAB với Cinder
-- Lab cơ bản
+- [Lab cơ bản](./docs/Lab_cinder_basic.md)
 
 
