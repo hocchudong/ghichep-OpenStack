@@ -4,29 +4,115 @@
 
 - File cấu hình mặc định là `/etc/nova/nova.conf`
 
+  ```sh
+  [DEFAULT]
+  use_neutron = True
+  firewall_driver = nova.virt.firewall.NoopFirewallDriver
+  my_ip = 10.10.10.190
+  transport_url = rabbit://openstack:Welcome123@controller
+  dhcpbridge_flagfile=/etc/nova/nova.conf
+  dhcpbridge=/usr/bin/nova-dhcpbridge
+  force_dhcp_release=true
+  state_path=/var/lib/nova
+  enabled_apis=osapi_compute,metadata
+  log_dir=/var/log/nova
+  
+  
+  [api]
+  auth_strategy = keystone
+  
+  
+  [api_database]
+  connection = mysql+pymysql://nova:Welcome123@controller/nova_api
+  
+  
+  [cells]
+  enable=False
+  
+  
+  [cinder]
+  os_region_name = RegionOne
+  
+  
+  [database]
+  connection = mysql+pymysql://nova:Welcome123@controller/nova
+  
+  
+  [glance]
+  api_servers = http://controller:9292
+  
+  
+  [keystone_authtoken]
+  auth_uri = http://controller:5000
+  auth_url = http://controller:35357
+  memcached_servers = controller:11211
+  auth_type = password
+  project_domain_name = default
+  user_domain_name = default
+  project_name = service
+  username = nova
+  password = Welcome123
+  
+  
+  [neutron]
+  url = http://controller:9696
+  auth_url = http://controller:35357
+  auth_type = password
+  project_domain_name = default
+  user_domain_name = default
+  region_name = RegionOne
+  project_name = service
+  username = neutron
+  password = Welcome123
+  service_metadata_proxy = true
+  metadata_proxy_shared_secret = Welcome123
+  
+  
+  [oslo_concurrency]
+  lock_path = /var/lib/nova/tmp
+  
+  
+  [placement]
+  os_region_name = RegionOne
+  project_domain_name = Default
+  project_name = service
+  auth_type = password
+  user_domain_name = Default
+  auth_url = http://controller:35357/v3
+  username = placement
+  password = Welcome123
+  
+  
+  [vnc]
+  enabled = true
+  vncserver_listen = $my_ip
+  vncserver_proxyclient_address = $my_ip
+  
+  ```
+  
 - 1. Cấu hình truy cập database. Ở trong section `[api_database]` và `[database]`.
 
   ```sh
   [api_database]
   # ...
-  connection = mysql+pymysql://nova:NOVA_DBPASS@controller/nova_api
+  connection = mysql+pymysql://nova:Welcome123@controller/nova_api
 
   [database]
   # ...
-  connection = mysql+pymysql://nova:NOVA_DBPASS@controller/nova
+  connection = mysql+pymysql://nova:Welcome123@controller/nova
   ```
   
-  - `NOVA_DBPASS` là mật khẩu của user nova được cấp phát cho phép truy cập vào các database của dịch vụ compute.
+  - `Welcome123` là mật khẩu của user nova được cấp phát cho phép truy cập vào các database của dịch vụ compute.
   
 - 2. Cấu hình truy cập RabbitMQ. Ở trong section [DEFAULT]
   
   ```sh
   [DEFAULT]
   # ...
-  transport_url = rabbit://openstack:RABBIT_PASS@controller
+  transport_url = rabbit://openstack:Welcome123@controller
   ```
   
-  - `RABBIT_PASS` là mật khẩu của tài khoản `openstack` trong RabbitMQ.
+  - `Welcome123` là mật khẩu của tài khoản `openstack` trong RabbitMQ.
   
 - 3. Cấu hình truy cập đến dịch vụ Identity (keystone).
 
@@ -49,7 +135,7 @@
   user_domain_name = default
   project_name = service
   username = nova
-  password = NOVA_PASS
+  password = Welcome123
   ```
   
 - 4. Cấu hình địa chỉ ip của interface dùng để quản lý trên node controller. Dòng cấu hình này ở trong section [DEFAULT].
@@ -116,15 +202,82 @@
   user_domain_name = Default
   auth_url = http://controller:35357/v3
   username = placement
-  password = PLACEMENT_PASS
+  password = Welcome123
   ```
-  - `PLACEMENT_PASS` là mật khẩu của user placement trong dịch vụ Identity.
+  - `Welcome123` là mật khẩu của user placement trong dịch vụ Identity.
   
-  
+- 10. Khai báo tên region của node cinder đang sử dụng.
+
+  ```sh
+  [cinder]
+  os_region_name = RegionOne
+  ```
 ## 2. Sau đây là các dòng cấu hình cơ bản của nova trên node compute
 
 - File cấu hình `/etc/nova/nova.conf`
 
+  ```sh
+  [DEFAULT]
+  transport_url = rabbit://openstack:Welcome123@controller
+  my_ip = 10.10.10.191
+  use_neutron = True
+  firewall_driver = nova.virt.firewall.NoopFirewallDriver
+
+  dhcpbridge_flagfile=/etc/nova/nova.conf
+  dhcpbridge=/usr/bin/nova-dhcpbridge
+  force_dhcp_release=true
+  state_path=/var/lib/nova
+  enabled_apis=osapi_compute,metadata
+  log_dir=/var/log/nova
+
+  [api]
+  auth_strategy = keystone
+
+  [api_database]
+  connection=sqlite:////var/lib/nova/nova.sqlite
+
+  [glance]
+  api_servers = http://controller:9292
+
+  [keystone_authtoken]
+  auth_uri = http://controller:5000
+  auth_url = http://controller:35357
+  memcached_servers = controller:11211
+  auth_type = password
+  project_domain_name = default
+  user_domain_name = default
+  project_name = service
+  username = nova
+  password = Welcome123
+
+  [neutron]
+  url = http://controller:9696
+  auth_url = http://controller:35357
+  auth_type = password
+  project_domain_name = default
+  user_domain_name = default
+  region_name = RegionOne
+  project_name = service
+  username = neutron
+  password = Welcome123
+
+  [placement]
+  os_region_name = RegionOne
+  project_domain_name = Default
+  project_name = service
+  auth_type = password
+  user_domain_name = Default
+  auth_url = http://controller:35357/v3
+  username = placement
+  password = Welcome123
+
+  [vnc]
+  enabled = True
+  vncserver_listen = 0.0.0.0
+  vncserver_proxyclient_address = $my_ip
+  novncproxy_base_url = http://172.16.69.190:6080/vnc_auto.html
+
+  ```
 - 1. Cấu hình truy cập RabbitMQ. Ở trong section [DEFAULT]
   
   ```sh
@@ -144,7 +297,7 @@
 
   [keystone_authtoken]
   # ...
-  # Chúng ta phải cung cấp thông tin xác thực cho user nova để keystone thực hiện xác thực. NOVA_PASS là mật khẩu của user nova
+  # Chúng ta phải cung cấp thông tin xác thực cho user nova để keystone thực hiện xác thực. Welcome123 là mật khẩu của user nova
   auth_uri = http://controller:5000
   auth_url = http://controller:35357
   memcached_servers = controller:11211
@@ -153,7 +306,7 @@
   user_domain_name = default
   project_name = service
   username = nova
-  password = NOVA_PASS
+  password = Welcome123
   ```
   
 - 3. Cấu hình địa chỉ ip của interface dùng để quản lý trên node controller. Dòng cấu hình này ở trong section [DEFAULT].
