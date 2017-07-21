@@ -5,6 +5,10 @@
 
 ---
 
+- [Thực hiện tạo máy ảo với Dashboard](./docs/Tao_may_ao_voi_dashboard.md)
+
+---
+
 - Tài liệu tổng hợp dưới đây được thực hiện dựa trên môi trường đã được cài đặt theo hướng dẫn trên.
 
 ## Keystone
@@ -64,5 +68,6 @@
 
 ### LAB với Cinder
 - [Lab cơ bản](./docs/cinder_lab_co_ban.md)
+- [So sánh launch từ image và từ volume](./docs/Launch.md)
 
 
