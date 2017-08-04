@@ -2,6 +2,7 @@
 
 ### Cài đặt
 - [1. Setup Openstack Ocata](./docs/install.md)
+- [2. Cài đặt nâng cao NFS server storage cho glance và nova](./docs/nfs_install.md)
 
 ---
 
