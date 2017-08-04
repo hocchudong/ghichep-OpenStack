@@ -40,7 +40,7 @@ Tương tự như keystone, glance cũng cung cấp các endpoint cho phép ngư
 	       }
 	     }
 	  }
-	}' http://10.10.10.61:5000/v3/auth/tokens
+	}' http://10.10.10.190:5000/v3/auth/tokens
 	```
 Thay thế `Welcome123` bằng mật khẩu của user admin trên hệ thống openstack của bạn
 
@@ -72,7 +72,7 @@ Thay thế `Welcome123` bằng mật khẩu của user admin trên hệ thống 
 ### 2. Liệt kê ra các image có trong glance 
 - Dùng lệnh sau để lấy thông tin về các image có trong glance
 	```sh
-	curl -s -X GET -H "X-Auth-Token: $OS_TOKEN" http://10.10.10.61:9292/v2/images | python -mjson.tool
+	curl -s -X GET -H "X-Auth-Token: $OS_TOKEN" http://10.10.10.190:9292/v2/images | python -mjson.tool
 	```
 
 - Kết quả trả về.

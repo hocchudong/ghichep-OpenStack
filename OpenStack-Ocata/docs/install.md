@@ -1701,7 +1701,7 @@ Trong section [neutron] khai báo mới hoặc sửa thành dòng dưới:
 <a name=bl></a>
 # 8. Cài đặt Block Storage node
 
-<a name=cbl></a>
+<a name=nbl></a>
 ## 8.1 Cài đặt trên node controller
 - Trước khi cài đặt và cấu hình Block Storage service, bạn phải tạo 1 database, service credentials, và API endpoints.  
 ### Tạo database

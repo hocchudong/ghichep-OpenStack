@@ -2,6 +2,11 @@
 
 ### Cài đặt
 - [1. Setup Openstack Ocata](./docs/install.md)
+- [2. Cài đặt nâng cao NFS server storage cho glance và nova](./docs/nfs_install.md)
+
+---
+
+- [Thực hiện tạo máy ảo với Dashboard](./docs/Tao_may_ao_voi_dashboard.md)
 
 ---
 
@@ -64,5 +69,6 @@
 
 ### LAB với Cinder
 - [Lab cơ bản](./docs/cinder_lab_co_ban.md)
+- [So sánh launch từ image và từ volume](./docs/Launch.md)
 
 
