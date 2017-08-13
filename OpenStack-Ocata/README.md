@@ -3,7 +3,7 @@
 ### Cài đặt
 - [1. Setup Openstack Ocata](./docs/install.md)
 - [2. Cài đặt nâng cao NFS server storage cho glance và nova](./docs/nfs_install.md)
-
+- [3. Cài đặt Swift](./docs/swift_install.md)
 ---
 
 - [Thực hiện tạo máy ảo với Dashboard](./docs/Tao_may_ao_voi_dashboard.md)
