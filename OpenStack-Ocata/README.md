@@ -74,7 +74,7 @@
 ## Swift
 ### Ghi chép về Swift
 - [Tổng quan về Swift](./docs/swift_overview.md)
-- [Giải thích file cấu hình cơ bản của Swift]()
+- [Giải thích file cấu hình cơ bản của Swift](./docs/swift_file_config.md)
 - [Các lệnh cơ bản](./docs/swift_cac_lenh_co_ban.md)
 
 ### LAB với Swift
