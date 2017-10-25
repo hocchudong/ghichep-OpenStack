@@ -71,4 +71,12 @@
 - [Lab cơ bản](./docs/cinder_lab_co_ban.md)
 - [So sánh launch từ image và từ volume](./docs/Launch.md)
 
+## Swift
+### Ghi chép về Swift
+- [Tổng quan về Swift](./docs/swift_overview.md)
+- [Giải thích file cấu hình cơ bản của Swift]()
+- [Các lệnh cơ bản](./docs/swift_cac_lenh_co_ban.md)
+
+### LAB với Swift
+- [Lab cơ bản](./docs/swift_lab_co_ban.md)
 
