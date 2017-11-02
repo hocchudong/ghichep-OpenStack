@@ -1,0 +1,444 @@
+# Eugènia Torrella <tester03@es.ibm.com>, 2016. #zanata
+msgid ""
+msgstr ""
+"Project-Id-Version: horizon 9.0.1.dev23\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
+"POT-Creation-Date: 2016-05-14 10:52+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2016-05-14 03:54+0000\n"
+"Last-Translator: Pablo Iranzo Gómez <Pablo.Iranzo@gmail.com>\n"
+"Language-Team: Spanish\n"
+"Language: es\n"
+"X-Generator: Zanata 3.7.3\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#, python-format
+msgid "%s GB"
+msgstr "%s GB"
+
+#, python-format
+msgid "%s KB"
+msgstr "%s KB"
+
+#, python-format
+msgid "%s MB"
+msgstr "%s MB"
+
+#, python-format
+msgid "%s TB"
+msgstr "%s TB"
+
+#, python-format
+msgid "%s bytes"
+msgstr "%s bytes"
+
+msgid "(Modified)"
+msgstr "(Modificado)"
+
+msgid "-"
+msgstr "-"
+
+msgid "0 GB"
+msgstr "0 GB"
+
+msgid "0 MB"
+msgstr "0 MB"
+
+msgid "Active"
+msgstr "Activo"
+
+msgid "Add Interface"
+msgstr "Añadir interfaz"
+
+msgid "Added"
+msgstr "Añadido"
+
+msgid "Allocated"
+msgstr "Asignado"
+
+msgid "An error occurred while updating."
+msgstr "Se ha producido un error durante la actualización."
+
+msgid "An error occurred. Please try again later."
+msgstr "Se ha producido un error. Inténtelo de nuevo más tarde."
+
+msgid "Available"
+msgstr "Disponible"
+
+msgid "Available Metadata"
+msgstr "Metadatos disponibles"
+
+msgid "Back"
+msgstr "Anterior"
+
+msgid "Cancel"
+msgstr "Cancelar "
+
+msgid "Click here for filters."
+msgstr "Pulse aquí para filtros."
+
+msgid "Click here to expand the row and view the errors."
+msgstr "Pulse aquí para expandir la fila y ver los errores."
+
+msgid "Click to see more details"
+msgstr "Pulse para ver más detalles"
+
+msgid "Click to show or hide"
+msgstr "Pulse para mostrar u ocultar"
+
+msgid "Closed"
+msgstr "Cerrado"
+
+msgid "Closing"
+msgstr "Cerrando"
+
+#, python-format
+msgid "Confirm %s"
+msgstr "Confirmar %s"
+
+msgid "Confirm Delete Foobars"
+msgstr "Confirmar Supresión de Foobars"
+
+msgid "Connecting"
+msgstr "Conectando"
+
+msgid "Could not decrypt the password"
+msgstr "No se ha podido descifrar la contraseña"
+
+msgid "Could not read the file"
+msgstr "No se ha podido leer el archivo"
+
+msgid "Create Subnet"
+msgstr "Crear subred"
+
+msgid "Current Usage"
+msgstr "Uso actual"
+
+msgid "Custom"
+msgstr "Personalizar"
+
+msgid "Customization Script"
+msgstr "Script de personalización"
+
+msgid "Danger"
+msgstr "Peligro"
+
+msgid "Danger: "
+msgstr "Peligro:"
+
+msgid "Decimal required"
+msgstr "Decimal obligatorio"
+
+msgid "Delete"
+msgstr "Suprimir"
+
+msgid "Delete Instance"
+msgstr "Suprimir instancia"
+
+msgid "Delete Interface"
+msgstr "Suprimir interfaz"
+
+msgid "Delete Network"
+msgstr "Suprimir red"
+
+msgid "Delete Router"
+msgstr "Suprimir direccionador"
+
+msgid "Delete Subnet"
+msgstr "Suprimir subred"
+
+#, python-format
+msgid "Deleted : %s."
+msgstr "Suprimido : %s."
+
+msgid "Detail Information"
+msgstr "Información detallada"
+
+#, python-format
+msgid "Displaying %(count)s of %(total)s items"
+msgstr "Mostrando %(count)s de %(total)s elementos"
+
+#, python-format
+msgid "Displaying %s item"
+msgid_plural "Displaying %s items"
+msgstr[0] "Mostrando %s articulo"
+msgstr[1] "Mostrando %s articulos"
+
+msgid "Duplicate keys are not allowed"
+msgstr "Las claves duplicadas no están permitidas"
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Error: "
+msgstr "Error: "
+
+msgid "Example"
+msgstr "Ejemplo"
+
+msgid "Existing Metadata"
+msgstr "Metadatos existentes"
+
+msgid "Expand to see allocated items"
+msgstr "Expandir para ver los elementos asignados"
+
+msgid "Expand to see available items"
+msgstr "Expandir para ver los elementos disponibles"
+
+msgid "Filter"
+msgstr "Filtrar"
+
+msgid "Finish"
+msgstr "Finalizar"
+
+msgid "Flavor"
+msgstr "Tipo"
+
+msgid "Full Text Search"
+msgstr "Búsqueda de texto completo"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "IP Addresses"
+msgstr "Direcciones IP"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Integer required"
+msgstr "Entero obligatorio"
+
+msgid "Interfaces"
+msgstr "Interfaces"
+
+msgid "Load script from a file"
+msgstr "Cargar un script de un archivo"
+
+msgid "Loading"
+msgstr "Cargando"
+
+msgid "Max"
+msgstr "Máx."
+
+msgid "Max length"
+msgstr "Longitud máx."
+
+msgid "Min"
+msgstr "Mín."
+
+msgid "Min length"
+msgstr "Longitud mín."
+
+msgid "Name"
+msgstr "Nombre"
+
+msgid "Next"
+msgstr "Siguiente"
+
+msgid "No"
+msgstr "No"
+
+msgid "No Limit"
+msgstr "Sin limite"
+
+msgid "No available items"
+msgstr "No hay elementos disponibles"
+
+msgid "No available metadata"
+msgstr "Metadatos no disponibles"
+
+msgid "No data available."
+msgstr "No hay datos disponibles."
+
+msgid "No description available."
+msgstr "Descripción no disponible."
+
+msgid "No existing metadata"
+msgstr "No hay metadatos existentes"
+
+msgid "No items to display."
+msgstr "No hay elementos que mostrar."
+
+msgid "No roles"
+msgstr "Sin roles"
+
+msgid "None"
+msgstr "Ninguno"
+
+msgid "Not authorized to do this operation."
+msgstr "No tiene autorización para realizar esta operación."
+
+msgid "Notice: "
+msgstr "Aviso:"
+
+msgid "Open"
+msgstr "Abrierto"
+
+msgid "Open Console"
+msgstr "Abrir consola"
+
+msgid "Passwords do not match."
+msgstr "Las contraseñas no coinciden."
+
+msgid "Pattern mismatch"
+msgstr "Discrepancia en el patrón"
+
+msgid "Please confirm your selection. "
+msgstr "Confirme su selección."
+
+msgid "Prompt"
+msgstr "Preguntar"
+
+msgid "Re-order items using drag and drop"
+msgstr "Reordene los elementos arrastrando y soltando."
+
+msgid "Remaining"
+msgstr "Restante "
+
+msgid "Remove"
+msgstr "Eliminar"
+
+msgid "Required"
+msgstr "Obligatorio"
+
+msgid "Roles"
+msgstr "Roles"
+
+msgid "STATUS"
+msgstr "ESTADO"
+
+#. Strings between {$ and $} should be left untranslated.
+msgid ""
+"Script size: {$ (scriptLength || 0) | bytes $} of {$ config.MAX_SCRIPT_SIZE "
+"| bytes $}"
+msgstr ""
+"Tamaño del script: {$ (scriptLength || 0) | bytes $} of {$ config."
+"MAX_SCRIPT_SIZE | bytes $}"
+
+msgid "Search in current results"
+msgstr "Buscar en los resultados actuales"
+
+msgid "Select an item from Available items below"
+msgstr "Seleccione un elemento de los disponibles abajo"
+
+msgid "Select one"
+msgstr "Seleccione uno"
+
+msgid "Server Name"
+msgstr "Nombre del servidor"
+
+msgid "Shutdown"
+msgstr "Apagar"
+
+msgid "Status"
+msgstr "Estado"
+
+#, python-format
+msgid "Status: %s"
+msgstr "Estado: %s"
+
+msgid "Submit"
+msgstr "Enviar"
+
+msgid "Subnets"
+msgstr "Subredes"
+
+msgid "Success"
+msgstr "Satisfactorio"
+
+msgid "Success: "
+msgstr "Correcto:"
+
+msgid "Text"
+msgstr "Texto"
+
+msgid ""
+"The action cannot be performed. The contents of this row have errors or are "
+"missing information."
+msgstr ""
+"Esta acción no se puede llevar a cabo. Esta columna contiene errores o le "
+"falta información."
+
+msgid "The script is larger than the maximum size"
+msgstr "El script tiene un tamaño superior al máximo"
+
+msgid "There was a problem communicating with the server, please try again."
+msgstr ""
+"Ha habido un problema en la comunicación con el servidor, inténtelo de nuevo."
+
+msgid "There was an error submitting the form. Please try again."
+msgstr "Se ha producido un error al enviar el formulario. Inténtelo de nuevo."
+
+msgid "Toggle Dropdown"
+msgstr "Alternar desplegable"
+
+msgid "Toggle navigation"
+msgstr "Alternar navegación "
+
+msgid "Total"
+msgstr "Total"
+
+#, python-format
+msgid "Unable to delete: %s."
+msgstr "No se ha podido suprimir: %s."
+
+msgid "Unlimited"
+msgstr "Ilimitado"
+
+msgid "View Details"
+msgstr "Ver detalles"
+
+msgid "View Instance Details"
+msgstr "Ver detalles de la instancia"
+
+msgid "View Router Details"
+msgstr "Ver detalles del direccionador"
+
+msgid "Warning"
+msgstr "Advertencia:"
+
+msgid "Warning: "
+msgstr "Advertencia:"
+
+msgid "Working"
+msgstr "Trabajando"
+
+msgid "Yes"
+msgstr "Sí"
+
+msgid ""
+"You can specify resource metadata by moving items from the left column to "
+"the right column. In the left column there are metadata definitions from the "
+"Glance Metadata Catalog. Use the \"Custom\" option to add metadata with "
+"the key of your choice."
+msgstr ""
+"Puede especificar los metadatos para los recursos moviendo elementos de la "
+"columna izquierda a la derecha. En la columna izquierda aparecen las "
+"definiciones de metadatos del catálogo de Glance. Utilice la opción "
+"\"Personalizado\" para añadir metadatos con los valores que escoja."
+
+#, python-format
+msgid "You have selected %s. "
+msgstr "Ha seleccionado %s."
+
+msgid "description"
+msgstr "descripción"
+
+msgid "m1.small"
+msgstr "m1.small"
+
+msgid "m1.tiny"
+msgstr "m1.tiny"
+
+msgid "pool default"
+msgstr "Valor predeterminado de la agrupación"
+
+#, python-format
+msgid "selected \"%s\""
+msgstr "seleccionado \"%s\""
+
+msgid "{$ message || 'No items to display.' $}"
+msgstr "{$ message || 'No items to display.' $}"
