@@ -1860,7 +1860,7 @@
 
 	```sh
 	enable_vxlan = true
-	local_ip = 10.10.10.190
+	local_ip = 10.10.20.190
 	l2_population = true
 	```
 	
@@ -2019,7 +2019,7 @@
 
 	```sh
 	enable_vxlan = true
-	local_ip = 10.10.10.191
+	local_ip = 10.10.20.191
 	l2_population = true
 	```
 	
