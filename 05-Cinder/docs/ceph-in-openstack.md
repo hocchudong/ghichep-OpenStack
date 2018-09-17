@@ -15,7 +15,7 @@
 - ### <a name="about">1. Mô hình cài đặt và các yêu cầu</a>
     - Việc cài đặt được tiến hành theo mô hình như sau:
 
-        ![ceph-in-openstack.png](images/ceph-in-openstack.png)
+        ![ceph-in-openstack.png](../images/ceph-in-openstack.png)
 
     - Yêu cầu của các node bao gồm:
         - Sử dụng hệ điều hành: Ubuntu 16.04
@@ -23,7 +23,7 @@
             - block01, block02: cung cấp cinder-volume service.
         - Các node có địa chỉ IP như sau:
 
-            ![ip-ceph-openstack.png](images/ip-ceph-openstack.png)
+            ![ip-ceph-openstack.png](../images/ip-ceph-openstack.png)
 
         - Các câu lệnh được thực hiện với người dùng root.
         - Có thể sử dụng SSH trên tất cả các node theo hostname.
