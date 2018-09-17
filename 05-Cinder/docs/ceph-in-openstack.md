@@ -1,4 +1,4 @@
-# Sử dụng CEPH trong Openstack với multiple cinder-volumes
+# Sử dụng CEPH trong Openstack
 
 
 # Mục lục
@@ -15,7 +15,7 @@
 - ### <a name="about">1. Mô hình cài đặt và các yêu cầu</a>
     - Việc cài đặt được tiến hành theo mô hình như sau:
 
-        ![ceph-in-openstack.png](../images/ceph-in-openstack.png)
+        ![ceph-in-openstack.png](images/ceph-in-openstack.png)
 
     - Yêu cầu của các node bao gồm:
         - Sử dụng hệ điều hành: Ubuntu 16.04
@@ -23,7 +23,7 @@
             - block01, block02: cung cấp cinder-volume service.
         - Các node có địa chỉ IP như sau:
 
-            ![ip-ceph-openstack.png](../images/ip-ceph-openstack.png)
+            ![ip-ceph-openstack.png](images/ip-ceph-openstack.png)
 
         - Các câu lệnh được thực hiện với người dùng root.
         - Có thể sử dụng SSH trên tất cả các node theo hostname.
@@ -203,9 +203,9 @@
             ssh controller sudo chown glance:glance /etc/ceph/ceph.client.glance.keyring
 
             ceph auth get-or-create client.nova | ssh compute01 sudo tee /etc/ceph/ceph.client.nova.keyring
-            ssh copute01 sudo chown nova:nova /etc/ceph/ceph.client.nova.keyring
+            ssh compute01 sudo chown nova:nova /etc/ceph/ceph.client.nova.keyring
             ceph auth get-or-create client.nova | ssh compute02 sudo tee /etc/ceph/ceph.client.nova.keyring
-            ssh copute02 sudo chown nova:nova /etc/ceph/ceph.client.nova.keyring
+            ssh compute02 sudo chown nova:nova /etc/ceph/ceph.client.nova.keyring
 
             ceph auth get-or-create client.cinder | ssh block01 sudo tee /etc/ceph/ceph.client.cinder.keyring
             ssh block01 sudo chown cinder:cinder /etc/ceph/ceph.client.cinder.keyring
@@ -419,7 +419,7 @@
                 ...
                 images_rbd_ceph_conf = /etc/ceph/ceph.conf
                 ...
-                rbd_secret_uuid = aaf0aa41-45c0-451b-a8f1-1b4226e7d682
+                rbd_secret_uuid = 0dafa203-2511-4c4b-bf05-2244d2cd4f87
                 ...
                 rbd_user = nova
 
