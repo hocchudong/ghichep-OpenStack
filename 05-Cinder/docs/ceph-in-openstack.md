@@ -1,4 +1,4 @@
-# Sử dụng CEPH trong Openstack với multiple cinder-volumes
+# Sử dụng CEPH trong Openstack
 
 
 # Mục lục
@@ -203,9 +203,9 @@
             ssh controller sudo chown glance:glance /etc/ceph/ceph.client.glance.keyring
 
             ceph auth get-or-create client.nova | ssh compute01 sudo tee /etc/ceph/ceph.client.nova.keyring
-            ssh copute01 sudo chown nova:nova /etc/ceph/ceph.client.nova.keyring
+            ssh compute01 sudo chown nova:nova /etc/ceph/ceph.client.nova.keyring
             ceph auth get-or-create client.nova | ssh compute02 sudo tee /etc/ceph/ceph.client.nova.keyring
-            ssh copute02 sudo chown nova:nova /etc/ceph/ceph.client.nova.keyring
+            ssh compute02 sudo chown nova:nova /etc/ceph/ceph.client.nova.keyring
 
             ceph auth get-or-create client.cinder | ssh block01 sudo tee /etc/ceph/ceph.client.cinder.keyring
             ssh block01 sudo chown cinder:cinder /etc/ceph/ceph.client.cinder.keyring
@@ -419,7 +419,7 @@
                 ...
                 images_rbd_ceph_conf = /etc/ceph/ceph.conf
                 ...
-                rbd_secret_uuid = aaf0aa41-45c0-451b-a8f1-1b4226e7d682
+                rbd_secret_uuid = 0dafa203-2511-4c4b-bf05-2244d2cd4f87
                 ...
                 rbd_user = nova
 
